@@ -1,0 +1,1856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src='//libtl.com/sdk.js' data-zone='10612522' data-sdk='show_10612522'></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameVerse - Games, Gambling & More!</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); min-height: 100vh; color: white; overflow-x: hidden; }
+        .bg-animation { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+        .bg-animation::before, .bg-animation::after { content: ''; position: absolute; border-radius: 50%; filter: blur(80px); animation: pulse 4s ease-in-out infinite; }
+        .bg-animation::before { width: 400px; height: 400px; background: rgba(139, 92, 246, 0.3); top: -100px; right: -100px; }
+        .bg-animation::after { width: 300px; height: 300px; background: rgba(6, 182, 212, 0.3); bottom: -50px; left: -50px; animation-delay: 2s; }
+        @keyframes pulse { 0%, 100% { opacity: 0.5; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.1); } }
+        .falling-emoji { position: fixed; font-size: 32px; animation: fallEmoji linear forwards; z-index: 9999; pointer-events: none; }
+        @keyframes fallEmoji { 0% { transform: translateY(-50px) rotate(0deg) scale(1); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg) scale(0.5); opacity: 0; } }
+        .custom-message { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 36px; font-weight: bold; text-align: center; z-index: 10000; animation: messagePulse 1s ease-in-out infinite; padding: 30px 50px; border-radius: 20px; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); }
+        @keyframes messagePulse { 0%, 100% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.05); } }
+        .header { position: sticky; top: 0; z-index: 100; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding: 12px 20px; }
+        .header-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: bold; background: linear-gradient(90deg, #06b6d4, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; cursor: pointer; }
+        .currency-display { display: flex; gap: 12px; align-items: center; }
+        .currency-item { display: flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.3s; }
+        .currency-item:hover { transform: scale(1.05); }
+        .credits-display { background: rgba(234, 179, 8, 0.2); border: 1px solid rgba(234, 179, 8, 0.3); color: #fbbf24; }
+        .plays-display { background: rgba(34, 197, 94, 0.2); border: 1px solid rgba(34, 197, 94, 0.3); color: #22c55e; }
+        .cash-display { background: rgba(168, 85, 247, 0.2); border: 1px solid rgba(168, 85, 247, 0.3); color: #a855f7; }
+        .cash-display:hover { box-shadow: 0 0 15px rgba(168, 85, 247, 0.5); }
+        .account-display { background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.3); color: #3b82f6; cursor: default; }
+        .menu-bar { background: rgba(0, 0, 0, 0.3); border-bottom: 1px solid rgba(255, 255, 255, 0.1); position: sticky; top: 56px; z-index: 99; }
+        .menu-container { max-width: 1400px; margin: 0 auto; display: flex; }
+        .menu-tab { flex: 1; padding: 15px 20px; border: none; background: transparent; color: #9ca3af; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; position: relative; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .menu-tab:hover { background: rgba(255, 255, 255, 0.05); color: white; }
+        .menu-tab.active { color: white; background: rgba(255, 255, 255, 0.1); }
+        .menu-tab.active::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, #06b6d4, #a855f7); }
+        .menu-tab.dev { color: #ec4899; }
+        .menu-tab.dev.active { background: rgba(236, 72, 153, 0.2); }
+        .menu-tab.dev.active::after { background: linear-gradient(90deg, #ec4899, #f43f5e); }
+        .back-btn { display: none; background: rgba(255, 255, 255, 0.1); border: none; color: white; padding: 8px 15px; border-radius: 10px; cursor: pointer; font-size: 16px; }
+        .back-btn.visible { display: inline-block; }
+        .container { position: relative; z-index: 1; max-width: 1400px; margin: 0 auto; padding: 25px 20px; }
+        .page { display: none; }
+        .page.active { display: block; }
+        .section-title { text-align: center; margin-bottom: 30px; }
+        .section-title h2 { font-size: 32px; margin-bottom: 8px; }
+        .section-title p { color: #9ca3af; font-size: 16px; }
+        .game-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; margin-bottom: 30px; }
+        .game-card { background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05)); border-radius: 20px; padding: 25px; cursor: pointer; transition: all 0.3s; border: 2px solid transparent; }
+        .game-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); }
+        .game-card.flappy { border-color: rgba(251, 191, 36, 0.3); }
+        .game-card.geometry { border-color: rgba(6, 182, 212, 0.3); }
+        .game-card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+        .game-icon { width: 60px; height: 60px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 30px; }
+        .game-card.flappy .game-icon { background: linear-gradient(135deg, #fbbf24, #f59e0b); }
+        .game-card.geometry .game-icon { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+        .game-card h3 { font-size: 24px; margin-bottom: 5px; }
+        .game-card.flappy h3 { color: #fbbf24; }
+        .game-card.geometry h3 { color: #06b6d4; }
+        .game-card p { color: #9ca3af; }
+        .game-card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255, 255, 255, 0.1); }
+        .badge { padding: 5px 12px; border-radius: 15px; font-size: 12px; font-weight: 600; }
+        .badge-yellow { background: rgba(251, 191, 36, 0.2); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.3); }
+        .badge-cyan { background: rgba(6, 182, 212, 0.2); color: #06b6d4; border: 1px solid rgba(6, 182, 212, 0.3); }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 15px; }
+        .stat-card { background: rgba(255, 255, 255, 0.05); border-radius: 15px; padding: 20px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .stat-card .icon { font-size: 24px; margin-bottom: 10px; }
+        .stat-card .value { font-size: 26px; font-weight: bold; }
+        .stat-card .label { color: #9ca3af; font-size: 12px; margin-top: 5px; }
+        .level-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .level-card { background: rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 25px; cursor: pointer; transition: all 0.3s; border: 2px solid transparent; }
+        .level-card:hover { transform: scale(1.02); }
+        .level-card.easy { border-color: rgba(34, 197, 94, 0.5); background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.05)); }
+        .level-card.medium { border-color: rgba(234, 179, 8, 0.5); background: linear-gradient(135deg, rgba(234, 179, 8, 0.1), rgba(234, 179, 8, 0.05)); }
+        .level-card.hard { border-color: rgba(249, 115, 22, 0.5); background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(249, 115, 22, 0.05)); }
+        .level-card.impossible { border-color: rgba(239, 68, 68, 0.5); background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05)); }
+        .level-badge { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; }
+        .level-card.easy .level-badge { background: #22c55e; color: #000; }
+        .level-card.medium .level-badge { background: #eab308; color: #000; }
+        .level-card.hard .level-badge { background: #f97316; color: #000; }
+        .level-card.impossible .level-badge { background: #ef4444; color: #fff; }
+        .level-reward { display: flex; align-items: center; gap: 5px; color: #fbbf24; font-weight: 600; }
+        .level-name { font-size: 20px; font-weight: bold; margin-bottom: 8px; }
+        .level-details { display: flex; gap: 15px; margin-bottom: 12px; color: #9ca3af; font-size: 14px; }
+        .level-completed { display: flex; align-items: center; gap: 5px; color: #22c55e; font-size: 14px; margin-bottom: 12px; }
+        .play-btn { width: 100%; padding: 12px; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+        .play-btn.flappy { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; }
+        .play-btn.geometry { background: linear-gradient(135deg, #06b6d4, #0891b2); color: #000; }
+        .play-btn:hover { transform: scale(1.02); }
+        .play-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .task-card { background: rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 25px; margin-bottom: 20px; border: 1px solid rgba(255, 255, 255, 0.1); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+        .task-card.daily { border-color: rgba(236, 72, 153, 0.3); background: linear-gradient(135deg, rgba(236, 72, 153, 0.1), rgba(244, 63, 94, 0.05)); }
+        .task-card.sponsor { border-color: rgba(59, 130, 246, 0.3); background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(6, 182, 212, 0.05)); }
+        .task-card.promo { border-color: rgba(168, 85, 247, 0.3); background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(139, 92, 246, 0.05)); }
+        .task-info { display: flex; align-items: center; gap: 20px; }
+        .task-icon { width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 26px; }
+        .task-card.daily .task-icon { background: linear-gradient(135deg, #ec4899, #f43f5e); }
+        .task-card.sponsor .task-icon { background: linear-gradient(135deg, #3b82f6, #06b6d4); }
+        .task-card.promo .task-icon { background: linear-gradient(135deg, #a855f7, #8b5cf6); }
+        .task-details h3 { margin-bottom: 5px; font-size: 18px; }
+        .task-details p { color: #9ca3af; font-size: 14px; }
+        .task-action button { padding: 12px 28px; border: none; border-radius: 12px; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.3s; }
+        .task-card.daily .task-action button { background: linear-gradient(135deg, #ec4899, #f43f5e); color: white; }
+        .task-card.sponsor .task-action button { background: linear-gradient(135deg, #3b82f6, #06b6d4); color: white; }
+        .task-action button:hover { transform: scale(1.05); }
+        .task-action button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .timer-badge { color: #9ca3af; font-weight: 600; }
+        .game-container { display: flex; flex-direction: column; align-items: center; padding: 20px 0; }
+        .game-info { display: flex; align-items: center; gap: 20px; margin-bottom: 15px; }
+        .game-badge { padding: 6px 16px; border-radius: 20px; font-weight: 600; }
+        .game-badge.flappy { background: rgba(251, 191, 36, 0.2); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.3); }
+        .game-badge.geometry { background: rgba(6, 182, 212, 0.2); color: #06b6d4; border: 1px solid rgba(6, 182, 212, 0.3); }
+        canvas { border-radius: 20px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); max-width: 100%; }
+        .game-over-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); display: none; justify-content: center; align-items: center; z-index: 200; }
+        .game-over-overlay.active { display: flex; }
+        .game-over-card { background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05)); border-radius: 25px; padding: 40px; text-align: center; max-width: 420px; width: 90%; border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(20px); }
+        .game-over-card .trophy { font-size: 60px; margin-bottom: 15px; animation: bounce 1s infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .game-over-card h2 { font-size: 28px; margin-bottom: 10px; }
+        .completion-reward { font-size: 20px; color: #22c55e; margin-bottom: 15px; }
+        .final-score { font-size: 70px; font-weight: bold; color: #06b6d4; margin: 15px 0; }
+        .best-score { color: #fbbf24; font-size: 18px; margin-bottom: 25px; }
+        .game-over-buttons { display: flex; gap: 15px; }
+        .game-over-buttons button { flex: 1; padding: 15px; border: none; border-radius: 15px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .menu-btn { background: rgba(255, 255, 255, 0.1); color: white; }
+        .again-btn { background: linear-gradient(135deg, #06b6d4, #a855f7); color: white; }
+        .notification { position: fixed; top: 100px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #22c55e, #16a34a); padding: 15px 35px; border-radius: 30px; font-weight: bold; font-size: 18px; z-index: 1000; animation: slideDown 0.5s ease-out, fadeOut 0.5s ease-in 1.5s forwards; box-shadow: 0 10px 40px rgba(34, 197, 94, 0.5); }
+        @keyframes slideDown { from { opacity: 0; transform: translate(-50%, -20px); } to { opacity: 1; transform: translate(-50%, 0); } }
+        @keyframes fadeOut { to { opacity: 0; transform: translate(-50%, -20px); } }
+        .progress-container { margin-bottom: 15px; width: 100%; max-width: 700px; }
+        .progress-bar { height: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 10px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #06b6d4, #a855f7); transition: width 0.3s; }
+        .progress-text { display: flex; justify-content: space-between; font-size: 12px; color: #9ca3af; margin-top: 5px; }
+        .mode-indicator { display: flex; align-items: center; gap: 5px; padding: 4px 12px; border-radius: 15px; font-size: 12px; font-weight: 600; }
+        .mode-cube { background: rgba(6, 182, 212, 0.2); color: #06b6d4; }
+        .mode-ship { background: rgba(236, 72, 153, 0.2); color: #ec4899; }
+        .casino-modal, .account-modal, .transfer-modal, .buy-credits-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); display: none; justify-content: center; align-items: center; z-index: 300; }
+        .casino-modal.active, .account-modal.active, .transfer-modal.active, .buy-credits-modal.active { display: flex; }
+        .casino-content, .account-content, .transfer-content, .buy-credits-content { background: linear-gradient(135deg, #1a1a2e, #16213e); border-radius: 20px; padding: 30px; max-width: 600px; width: 95%; max-height: 90vh; overflow-y: auto; position: relative; }
+        .casino-close { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.1); border: none; color: white; font-size: 24px; cursor: pointer; border-radius: 50%; width: 40px; height: 40px; }
+        .casino-tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .casino-tab { flex: 1; min-width: 80px; padding: 12px; border: none; border-radius: 10px; background: rgba(255, 255, 255, 0.05); color: #9ca3af; font-size: 14px; cursor: pointer; }
+        .casino-tab.active { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+        .casino-game { display: none; }
+        .casino-game.active { display: block; }
+        .bet-controls { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 20px 0; }
+        .bet-btn { width: 40px; height: 40px; border: none; border-radius: 10px; background: rgba(255, 255, 255, 0.1); color: white; font-size: 20px; cursor: pointer; }
+        .bet-amount { font-size: 24px; font-weight: bold; color: #fbbf24; min-width: 80px; text-align: center; }
+        .play-button { width: 100%; padding: 15px; border: none; border-radius: 12px; background: linear-gradient(135deg, #22c55e, #10b981); color: white; font-size: 18px; font-weight: 700; cursor: pointer; margin-top: 15px; }
+        .cards-area { display: flex; flex-direction: column; gap: 20px; margin-bottom: 20px; }
+        .cards-row { display: flex; flex-direction: column; align-items: center; }
+        .cards { display: flex; gap: 10px; min-height: 80px; flex-wrap: wrap; justify-content: center; }
+        .card { width: 50px; height: 70px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold; color: #333; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .card.red { color: #ef4444; }
+        .card.hidden { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; }
+        .blackjack-actions { display: flex; gap: 10px; justify-content: center; margin-top: 15px; }
+        .action-btn { padding: 12px 30px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
+        .action-btn.hit { background: linear-gradient(135deg, #22c55e, #10b981); color: white; }
+        .action-btn.stand { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+        .dev-page { max-width: 1200px; margin: 0 auto; }
+        .dev-section { background: rgba(255, 255, 255, 0.05); border-radius: 15px; padding: 25px; margin-bottom: 20px; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .dev-section h3 { color: #ec4899; margin-bottom: 15px; font-size: 18px; }
+        .dev-row { display: flex; gap: 15px; align-items: center; margin-bottom: 15px; flex-wrap: wrap; }
+        .dev-input { flex: 1; min-width: 100px; padding: 10px 15px; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; background: rgba(255, 255, 255, 0.05); color: white; font-size: 14px; }
+        .dev-input:focus { outline: none; border-color: rgba(236, 72, 153, 0.5); }
+        .dev-btn { padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        .dev-btn.save { background: linear-gradient(135deg, #22c55e, #10b981); color: white; }
+        .dev-btn.delete { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+        .dev-btn:hover { transform: scale(1.02); }
+        .withdraw-form { max-width: 500px; margin: 0 auto; }
+        .withdraw-form .form-group { margin-bottom: 20px; }
+        .withdraw-form label { display: block; margin-bottom: 8px; color: #9ca3af; }
+        .withdraw-form input, .withdraw-form select { width: 100%; padding: 14px; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 10px; background: rgba(255, 255, 255, 0.05); color: white; font-size: 16px; }
+        .shop-page { max-width: 900px; margin: 0 auto; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 25px; }
+        .tab { flex: 1; padding: 15px; border: none; border-radius: 15px; background: rgba(255, 255, 255, 0.05); color: #9ca3af; font-size: 16px; font-weight: 600; cursor: pointer; }
+        .tab.active.flappy { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+        .tab.active.geometry { background: rgba(6, 182, 212, 0.2); color: #06b6d4; }
+        .skins-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
+        .shop-skin-card { background: rgba(255, 255, 255, 0.05); border-radius: 15px; padding: 20px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .shop-skin-card.owned { border-color: rgba(34, 197, 94, 0.3); }
+        .shop-skin-preview { width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 15px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); }
+        .shop-skin-preview.square { border-radius: 12px; }
+        .owned-badge { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; background: rgba(34, 197, 94, 0.2); color: #22c55e; border-radius: 15px; font-size: 12px; margin-bottom: 10px; }
+        .buy-btn, .equip-btn { width: 100%; padding: 10px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
+        .buy-btn { background: linear-gradient(135deg, #a855f7, #8b5cf6); color: white; }
+        .equip-btn.flappy { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; }
+        .equip-btn.geometry { background: linear-gradient(135deg, #06b6d4, #0891b2); color: #000; }
+        .account-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .account-tab { flex: 1; padding: 12px; border: none; border-radius: 10px; background: rgba(255,255,255,0.05); color: #9ca3af; font-size: 14px; cursor: pointer; }
+        .account-tab.active { background: rgba(59, 130, 246, 0.3); color: #3b82f6; }
+        .account-form { display: none; }
+        .account-form.active { display: block; }
+        .account-form input { width: 100%; padding: 14px; border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; background: rgba(0,0,0,0.2); color: white; font-size: 16px; margin-bottom: 15px; }
+        .fee-info { background: rgba(251, 191, 36, 0.2); border-radius: 10px; padding: 10px 15px; margin-bottom: 15px; font-size: 13px; color: #fbbf24; text-align: center; }
+        @media (max-width: 768px) { .header-content { flex-wrap: wrap; gap: 10px; } .menu-tab { padding: 12px 10px; font-size: 14px; } .game-over-buttons { flex-direction: column; } .task-card { flex-direction: column; text-align: center; } .task-info { flex-direction: column; } }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+    <div id="effectsContainer"></div>
+    <header class="header">
+        <div class="header-content">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <button class="back-btn" id="backBtn" onclick="goBack()">← Back</button>
+                <div class="logo" onclick="goHome()">🎮 GameVerse</div>
+            </div>
+            <div class="currency-display">
+                <div class="currency-item account-display" id="accountDisplay" onclick="showAccountModal()"><span>👤</span><span id="accountName">Guest</span></div>
+                <div class="currency-item credits-display" onclick="showBuyCreditsModal()"><span>💰</span><span id="creditsDisplay">100</span></div>
+                <div class="currency-item plays-display"><span>🎯</span><span id="playsDisplay">10</span></div>
+                <div class="currency-item cash-display" onclick="openCasino()"><span>💵</span><span id="cashDisplay">$0.00</span></div>
+            </div>
+        </div>
+    </header>
+    <nav class="menu-bar">
+        <div class="menu-container" id="menuContainer">
+            <button class="menu-tab active" id="gamesTab" onclick="switchMainTab('games')">🎮 Games</button>
+            <button class="menu-tab" id="tasksTab" onclick="switchMainTab('tasks')">📋 Tasks</button>
+            <button class="menu-tab" id="skinsTab" onclick="switchMainTab('skins')">🎨 Skins</button>
+            <button class="menu-tab" id="withdrawTab" onclick="switchMainTab('withdraw')">💸 Withdraw</button>
+        </div>
+    </nav>
+    <div id="notificationContainer"></div>
+    <div class="container">
+        <div class="page active" id="gamesPage">
+            <div class="section-title"><h2>🎮 Games</h2><p>Choose a game to play!</p></div>
+            <div class="game-cards">
+                <div class="game-card flappy" onclick="showPage('flappyLobby')">
+                    <div class="game-card-header"><div class="game-icon">🐦</div><div><h3>Flappy Bird</h3><p>Fly through pipes!</p></div></div>
+                    <div class="game-card-footer"><span>🏆 Best: <span id="flappyBest">0</span></span><span class="badge badge-yellow">4 Levels</span></div>
+                </div>
+                <div class="game-card geometry" onclick="showPage('geometryLobby')">
+                    <div class="game-card-header"><div class="game-icon">📦</div><div><h3>Geometry Dash</h3><p>Jump through obstacles!</p></div></div>
+                    <div class="game-card-footer"><span>🏆 Best: <span id="geometryBest">0</span>m</span><span class="badge badge-cyan">4 Levels</span></div>
+                </div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card"><div class="icon">💰</div><div class="value" id="totalCredits">100</div><div class="label">Credits</div></div>
+                <div class="stat-card"><div class="icon">🎯</div><div class="value" id="totalPlays">10</div><div class="label">Plays</div></div>
+                <div class="stat-card"><div class="icon">💵</div><div class="value" id="totalCash">$0.00</div><div class="label">Cash</div></div>
+                <div class="stat-card"><div class="icon">📦</div><div class="value" id="geometrySkins">1</div><div class="label">Skins</div></div>
+            </div>
+        </div>
+        <div class="page" id="flappyLobby">
+            <div class="section-title"><h2 style="color: #fbbf24;">🐦 Flappy Bird</h2><p>Select a difficulty - Win 10 Credits!</p></div>
+            <div class="level-grid" id="flappyLevels"></div>
+        </div>
+        <div class="page" id="flappyGame">
+            <div class="game-container">
+                <div class="game-info"><span class="game-badge flappy" id="flappyDifficulty">Medium</span></div>
+                <canvas id="flappyCanvas" width="400" height="600"></canvas>
+            </div>
+        </div>
+        <div class="page" id="geometryLobby">
+            <div class="section-title"><h2 style="color: #06b6d4;">📦 Geometry Dash</h2><p>Select a level - Win 10 Credits!</p></div>
+            <div class="level-grid" id="geometryLevels"></div>
+        </div>
+        <div class="page" id="geometryGame">
+            <div class="game-container">
+                <div class="game-info">
+                    <span class="game-badge geometry" id="gdDifficulty">Easy</span>
+                    <div class="mode-indicator mode-cube" id="gdModeIndicator">🎮 Cube</div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar"><div class="progress-fill" id="levelProgress"></div></div>
+                    <div class="progress-text"><span id="progressPercent">0%</span><span id="progressDistance">0m</span><span id="coinCount">🪙 0</span></div>
+                </div>
+                <canvas id="geometryCanvas" width="800" height="400"></canvas>
+            </div>
+        </div>
+        <div class="page" id="tasksPage">
+            <div class="section-title"><h2>📋 Tasks</h2><p>Complete tasks to earn rewards!</p></div>
+            <div style="max-width: 600px; margin: 0 auto;">
+                <div class="task-card daily">
+                    <div class="task-info"><div class="task-icon">🎁</div><div class="task-details"><h3>Daily Claim</h3><p>+50 Credits & +20 Plays every 24 hours</p></div></div>
+                    <div class="task-action"><span class="timer-badge" id="dailyTimer">Ready!</span><button id="dailyClaimBtn" onclick="claimDaily()">Claim</button></div>
+                </div>
+                <div class="task-card sponsor">
+                    <div class="task-info"><div class="task-icon">🔗</div><div class="task-details"><h3>Sponsor Visit</h3><p>Visit sponsor site for +10 plays</p></div></div>
+                    <div class="task-action"><button id="sponsorBtn" onclick="visitSponsor()">Visit</button></div>
+                </div>
+                <div class="task-card" style="border-color: rgba(34, 197, 94, 0.3); background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(16, 185, 129, 0.05));">
+                    <div class="task-info"><div class="task-icon" style="background: linear-gradient(135deg, #22c55e, #10b981);">📺</div><div class="task-details"><h3>Watch Ad</h3><p>Watch an ad for +10 plays</p></div></div>
+                    <div class="task-action"><button onclick="watchAd()" style="background: linear-gradient(135deg, #22c55e, #10b981); color: white;">Watch</button></div>
+                </div>
+                <div class="task-card promo">
+                    <div class="task-info"><div class="task-icon">🎟️</div><div class="task-details"><h3>Promo Code</h3><p>Enter a code for rewards</p></div></div>
+                    <div class="task-action" style="display:flex; gap:10px; flex-wrap:wrap;"><input type="text" id="promoInput" placeholder="Enter code..." style="padding:10px 15px; border-radius:8px; border:1px solid rgba(255,255,255,0.2); background:rgba(0,0,0,0.2); color:white;"><button onclick="redeemPromo()">Redeem</button></div>
+                </div>
+                <div id="customTasksContainer"></div>
+            </div>
+        </div>
+        <div class="page" id="skinsPage">
+            <div class="shop-page">
+                <div class="section-title"><h2>🎨 Skin Shop</h2><p>Buy skins with credits!</p></div>
+                <div style="background: rgba(234, 179, 8, 0.2); border-radius: 15px; padding: 15px 25px; display: inline-flex; align-items: center; gap: 10px; margin-bottom: 25px; border: 1px solid rgba(234, 179, 8, 0.3);"><span>💰</span><span style="font-size: 26px; font-weight: bold; color: #fbbf24;" id="shopCredits">100</span><span style="color: #fbbf24;">Credits</span></div>
+                <div class="tabs">
+                    <button class="tab active flappy" onclick="switchSkinTab('flappy')">🐦 Flappy Bird</button>
+                    <button class="tab geometry" onclick="switchSkinTab('geometry')">📦 Geometry Dash</button>
+                </div>
+                <div class="skins-grid" id="skinsGrid"></div>
+            </div>
+        </div>
+        <div class="page" id="withdrawPage">
+            <div class="section-title"><h2>💸 Withdraw</h2><p>Request a withdrawal!</p></div>
+            <div class="withdraw-form">
+                <div style="background: rgba(168, 85, 247, 0.2); border-radius: 15px; padding: 20px; margin-bottom: 25px; border: 1px solid rgba(168, 85, 247, 0.3); text-align: center;">
+                    <div style="font-size: 14px; color: #9ca3af;">Available Balance</div>
+                    <div style="font-size: 36px; font-weight: bold; color: #a855f7;" id="withdrawBalance">$0.00</div>
+                    <div style="font-size: 14px; color: #9ca3af;">Minimum: $<span id="withdrawMin">1.00</span></div>
+                </div>
+                <div class="form-group"><label>Amount ($)</label><input type="number" id="withdrawAmount" placeholder="Enter amount" step="0.01"></div>
+                <div class="form-group"><label>Payment Method</label><select id="withdrawMethod"><option value="paypal">PayPal</option><option value="btc">Bitcoin</option><option value="eth">Ethereum</option></select></div>
+                <div class="form-group"><label>Account / Wallet Address</label><input type="text" id="withdrawAccount" placeholder="Enter your account"></div>
+                <button class="play-button" onclick="submitWithdrawal()">Submit Request</button>
+                <button class="play-button" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); margin-top: 10px;" onclick="showTransferModal()">💸 Transfer Funds</button>
+            </div>
+        </div>
+        <div class="page" id="devPage">
+            <div class="dev-page">
+                <div class="section-title"><h2 style="color: #ec4899;">🔧 Admin Panel</h2><p>Manage your game</p></div>
+                <div class="dev-section">
+                    <h3>📢 Error Reports</h3>
+                    <p style="color: #9ca3af; margin-bottom: 15px; font-size: 13px;">View errors reported by users</p>
+                    <div id="errorReportsList" style="max-height: 200px; overflow-y: auto;"></div>
+                </div>
+                <div class="dev-section">
+                    <h3>📣 Broadcast Message</h3>
+                    <p style="color: #9ca3af; margin-bottom: 15px; font-size: 13px;">Send a message to all online players!</p>
+                    <div class="dev-row">
+                        <input type="text" class="dev-input" id="broadcastMessage" placeholder="Enter message...">
+                        <select class="dev-input" id="broadcastType" style="max-width: 100px;">
+                            <option value="info">Info</option>
+                            <option value="warning">Warning</option>
+                            <option value="reward">Reward</option>
+                        </select>
+                        <button class="dev-btn save" onclick="sendBroadcast()">Send</button>
+                    </div>
+                </div>
+                <div class="dev-section">
+                    <h3>👥 Account Management</h3>
+                    <p style="color: #9ca3af; margin-bottom: 15px; font-size: 13px;">View and manage all registered accounts</p>
+                    <button class="dev-btn save" onclick="loadAllAccounts()" style="margin-bottom: 15px;">🔄 Refresh Accounts</button>
+                    <div id="accountsList" style="max-height: 400px; overflow-y: auto;"></div>
+                </div>
+                <div class="dev-section">
+                    <h3>🎟️ Promo Code Management</h3>
+                    <p style="color: #9ca3af; margin-bottom: 15px; font-size: 13px;">Create promo codes with rewards and set max uses per user!</p>
+                    <div class="dev-row"><input type="text" class="dev-input" id="promoCodeName" placeholder="Code name"><input type="number" class="dev-input" id="promoCodeMaxUses" placeholder="Max uses (0=∞)" style="max-width: 120px;" min="0"></div>
+                    <div class="dev-row"><input type="number" class="dev-input" id="promoCodeCredits" placeholder="Credits" style="max-width: 100px;"><input type="number" class="dev-input" id="promoCodePlays" placeholder="Plays" style="max-width: 100px;"><input type="number" class="dev-input" id="promoCodeCash" placeholder="Cash" step="0.01" style="max-width: 100px;"></div>
+                    <div class="dev-row">
+                        <select class="dev-input" id="promoCodeEventType" style="max-width: 120px;"><option value="none">No Event</option><option value="emoji">Emoji Rain</option><option value="text">Custom Text</option></select>
+                        <input type="text" class="dev-input" id="promoCodeEmoji" placeholder="Emoji(s)" style="max-width: 150px;">
+                        <input type="text" class="dev-input" id="promoCodeMessage" placeholder="Custom message">
+                    </div>
+                    <button class="dev-btn save" onclick="createPromoCode()">Create Code</button>
+                    <div id="promoCodesList" style="margin-top: 15px;"></div>
+                </div>
+                <div class="dev-section">
+                    <h3>📦 Level Editor</h3>
+                    <p style="color: #9ca3af; margin-bottom: 15px; font-size: 13px;">Create or edit Geometry Dash levels! Select a default level to edit or create new. Click=spike, Right-click=coin, Double-click=portal</p>
+                    <div class="dev-row">
+                        <select class="dev-input" id="levelSelect" onchange="loadLevelForEdit()" style="max-width: 200px;">
+                            <option value="">-- New Level --</option>
+                            <option value="easy">Easy - Stereo Madness</option>
+                            <option value="medium">Medium - Back On Track</option>
+                            <option value="hard">Hard - Polargeist</option>
+                            <option value="impossible">Impossible - Deadlocked</option>
+                        </select>
+                        <input type="text" class="dev-input" id="levelName" placeholder="Level Name">
+                        <input type="number" class="dev-input" id="levelDistance" placeholder="Distance" style="max-width: 100px;">
+                    </div>
+                    <div id="levelEditorCanvas" style="background: rgba(0,0,0,0.3); border-radius: 10px; height: 200px; margin-bottom: 10px; position: relative; overflow: hidden; cursor: crosshair;">
+                        <div style="position: absolute; bottom: 0; left: 0; right: 0; height: 50px; background: #0e7490;"></div>
+                        <div style="position: absolute; top: 10px; left: 10px; color: #9ca3af; font-size: 11px;">Click=Spike | Right-Click=Coin | Double-Click=Portal</div>
+                    </div>
+                    <div class="dev-row">
+                        <button class="dev-btn save" onclick="saveCustomLevel()">Save Level</button>
+                        <button class="dev-btn delete" onclick="deleteCurrentLevel()">Delete Level</button>
+                        <button class="dev-btn" style="background: rgba(255,255,255,0.1); color: white;" onclick="clearLevelEditor()">Clear</button>
+                    </div>
+                    <div id="customLevelsList" style="margin-top: 10px;"></div>
+                </div>
+                <div class="dev-section">
+                    <h3>💳 Custom Withdraw Methods</h3>
+                    <p style="color: #9ca3af; margin-bottom: 15px; font-size: 13px;">Add custom payment methods for withdrawals</p>
+                    <div class="dev-row">
+                        <input type="text" class="dev-input" id="withdrawMethodName" placeholder="Method name (e.g., GCash)">
+                        <input type="text" class="dev-input" id="withdrawMethodIcon" placeholder="Icon emoji" style="max-width: 80px;">
+                        <button class="dev-btn save" onclick="createWithdrawMethod()">Add</button>
+                    </div>
+                    <div id="withdrawMethodsList" style="margin-top: 10px;"></div>
+                </div>
+                <div class="dev-section">
+                    <h3>💰 Give All Players</h3>
+                    <div class="dev-row">
+                        <input type="number" class="dev-input" id="giveCredits" placeholder="Credits" style="max-width: 100px;">
+                        <input type="number" class="dev-input" id="givePlays" placeholder="Plays" style="max-width: 100px;">
+                        <input type="number" class="dev-input" id="giveCash" placeholder="Cash" step="0.01" style="max-width: 100px;">
+                        <button class="dev-btn save" onclick="giveAllPlayers()">Give to All</button>
+                    </div>
+                </div>
+                <div class="dev-section">
+                    <h3>📋 Task Management</h3>
+                    <p style="color: #9ca3af; margin-bottom: 15px; font-size: 13px;">Create custom tasks with HTML content for ads</p>
+                    <div class="dev-row">
+                        <input type="text" class="dev-input" id="taskName" placeholder="Task Name">
+                        <select class="dev-input" id="taskType" style="max-width: 120px;"><option value="visit">Visit Site</option><option value="ad">Watch Ad</option><option value="html">HTML Content</option></select>
+                    </div>
+                    <div class="dev-row">
+                        <input type="text" class="dev-input" id="taskUrl" placeholder="URL (for visit type)">
+                        <input type="number" class="dev-input" id="taskCooldown" placeholder="Hours" style="max-width: 80px;" value="24">
+                    </div>
+                    <div class="dev-row">
+                        <input type="number" class="dev-input" id="taskCredits" placeholder="Credits" style="max-width: 80px;">
+                        <input type="number" class="dev-input" id="taskPlays" placeholder="Plays" style="max-width: 80px;">
+                        <input type="number" class="dev-input" id="taskCash" placeholder="Cash" step="0.01" style="max-width: 80px;">
+                    </div>
+                    <div class="dev-row">
+                        <textarea class="dev-input" id="taskHtmlContent" placeholder="HTML content (for HTML type - encode ads here)" style="width: 100%; height: 60px; resize: vertical;"></textarea>
+                    </div>
+                    <button class="dev-btn save" onclick="createTask()">Create Task</button>
+                    <div id="tasksList" style="margin-top: 15px;"></div>
+                </div>
+                <div class="dev-section">
+                    <h3>💸 Withdrawal Management</h3>
+                    <div id="withdrawalsList"></div>
+                </div>
+                <div class="dev-section">
+                    <h3>⚙️ Settings</h3>
+                    <div class="dev-row">
+                        <label style="color: #9ca3af;">Min Withdraw:</label>
+                        <input type="number" class="dev-input" id="minWithdrawInput" placeholder="1.00" step="0.01" style="max-width: 100px;">
+                        <button class="dev-btn save" onclick="setMinWithdraw()">Set</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="game-over-overlay" id="gameOverOverlay">
+        <div class="game-over-card">
+            <div class="trophy">🏆</div>
+            <h2 id="gameOverTitle">Game Over!</h2>
+            <div class="completion-reward" id="completionReward"></div>
+            <div class="final-score" id="finalScore">0</div>
+            <div class="best-score" id="bestScore">Best: 0</div>
+            <div class="game-over-buttons">
+                <button class="menu-btn" onclick="closeGameOver()">Menu</button>
+                <button class="again-btn" onclick="playAgain()">Play Again</button>
+            </div>
+        </div>
+    </div>
+    <!-- Casino Modal -->
+    <div class="casino-modal" id="casinoModal">
+        <button class="casino-close" onclick="closeCasino()">×</button>
+        <div class="casino-content">
+            <div style="text-align: center; margin-bottom: 20px;"><h2>🎰 Casino</h2><p style="color: #9ca3af;">Balance: $<span id="casinoBalance">0.00</span></p></div>
+            <div class="casino-tabs">
+                <button class="casino-tab active" onclick="switchCasinoGame('blackjack')">🃏 Blackjack</button>
+                <button class="casino-tab" onclick="switchCasinoGame('plinko')">🔵 Plinko</button>
+                <button class="casino-tab" onclick="switchCasinoGame('hilo')">⬆️ Hi-Lo</button>
+                <button class="casino-tab" onclick="switchCasinoGame('roulette')">🎡 Roulette</button>
+            </div>
+            <div class="casino-game active" id="blackjackGame">
+                <div class="cards-area">
+                    <div class="cards-row"><div class="cards" id="dealerCards"></div><div class="card-score" id="dealerScore"></div></div>
+                    <div class="cards-row"><div class="cards" id="playerCards"></div><div class="card-score" id="playerScore"></div></div>
+                </div>
+                <div class="bet-controls">
+                    <button class="bet-btn" onclick="adjustBet(-0.01)">-</button>
+                    <div class="bet-amount">$<span id="blackjackBet">0.01</span></div>
+                    <button class="bet-btn" onclick="adjustBet(0.01)">+</button>
+                </div>
+                <div class="blackjack-actions" id="blackjackActions" style="display:none;">
+                    <button class="action-btn hit" onclick="blackjackHit()">Hit</button>
+                    <button class="action-btn stand" onclick="blackjackStand()">Stand</button>
+                </div>
+                <button class="play-button" id="blackjackDeal" onclick="blackjackDeal()">Deal</button>
+            </div>
+            <div class="casino-game" id="plinkoGame">
+                <p style="text-align: center; color: #9ca3af; margin-bottom: 10px;">Drop a ball and win multipliers!</p>
+                <canvas id="plinkoCanvas" width="300" height="300" style="background: linear-gradient(180deg, #1a1a2e, #0f3460); border-radius: 10px; margin: 0 auto 15px; display: block;"></canvas>
+                <div class="bet-controls">
+                    <button class="bet-btn" onclick="adjustBet(-0.01)">-</button>
+                    <div class="bet-amount">$<span id="plinkoBet">0.01</span></div>
+                    <button class="bet-btn" onclick="adjustBet(0.01)">+</button>
+                </div>
+                <button class="play-button" onclick="playPlinko()">Drop Ball</button>
+            </div>
+            <div class="casino-game" id="hiloGame">
+                <p style="text-align: center; color: #9ca3af; margin-bottom: 15px;">Guess higher or lower!</p>
+                <div id="hiloCardDisplay" style="width:100px; height:140px; background:white; border-radius:10px; margin:0 auto 20px; display:flex; align-items:center; justify-content:center; font-size:48px; font-weight:bold; color:#333;">?</div>
+                <div id="hiloMultiplier" style="text-align:center; font-size:24px; color:#22c55e; margin-bottom:10px;">1.0x</div>
+                <div id="hiloPotential" style="text-align:center; color:#9ca3af; margin-bottom:15px;">Potential: $0.00</div>
+                <div class="blackjack-actions" id="hiloButtons" style="display:none;">
+                    <button class="action-btn hit" onclick="hiloGuess('higher')">⬆️ Higher</button>
+                    <button class="action-btn stand" onclick="hiloGuess('lower')">⬇️ Lower</button>
+                    <button class="action-btn" style="background: linear-gradient(135deg, #fbbf24, #f59e0b); color:#000;" onclick="hiloCashout()">💰 Cash Out</button>
+                </div>
+                <div class="bet-controls">
+                    <button class="bet-btn" onclick="adjustBet(-0.01)">-</button>
+                    <div class="bet-amount">$<span id="hiloBet">0.01</span></div>
+                    <button class="bet-btn" onclick="adjustBet(0.01)">+</button>
+                </div>
+                <button class="play-button" id="hiloStart" onclick="startHilo()">Start Game</button>
+            </div>
+            <div class="casino-game" id="rouletteGame">
+                <p style="text-align: center; color: #9ca3af; margin-bottom: 15px;">Choose a color and spin!</p>
+                <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:20px;">
+                    <button class="bet-btn" style="width:auto; padding:12px 20px; background:#ef4444;" onclick="selectRouletteBet('red')">🔴 Red (2x)</button>
+                    <button class="bet-btn" style="width:auto; padding:12px 20px; background:#1f2937;" onclick="selectRouletteBet('black')">⚫ Black (2x)</button>
+                    <button class="bet-btn" style="width:auto; padding:12px 20px; background:#22c55e;" onclick="selectRouletteBet('green')">🟢 Green (14x)</button>
+                </div>
+                <div class="bet-controls">
+                    <button class="bet-btn" onclick="adjustBet(-0.01)">-</button>
+                    <div class="bet-amount">$<span id="rouletteBet">0.01</span></div>
+                    <button class="bet-btn" onclick="adjustBet(0.01)">+</button>
+                </div>
+                <button class="play-button" onclick="playRoulette()">Spin!</button>
+            </div>
+        </div>
+    </div>
+    <!-- Account Modal -->
+    <div class="account-modal" id="accountModal">
+        <div class="account-content">
+            <button class="casino-close" onclick="closeAccountModal()">×</button>
+            <h2>👤 Account</h2>
+            <div class="account-tabs">
+                <button class="account-tab active" onclick="switchAccountTab('login')">Login</button>
+                <button class="account-tab" onclick="switchAccountTab('register')">Register</button>
+            </div>
+            <div class="account-form active" id="loginForm">
+                <input type="text" id="loginUsername" placeholder="Username">
+                <input type="password" id="loginPassword" placeholder="Password">
+                <button class="play-button" onclick="loginAccount()">Login</button>
+            </div>
+            <div class="account-form" id="registerForm">
+                <input type="text" id="registerUsername" placeholder="Username (3-20 chars)">
+                <input type="password" id="registerPassword" placeholder="Password">
+                <button class="play-button" onclick="registerAccount()">Create Account</button>
+                <button class="play-button" style="background: linear-gradient(135deg, #6b7280, #4b5563); margin-top: 10px;" onclick="loginAsGuest()">Continue as Guest</button>
+            </div>
+            <div id="accountInfo" style="display:none; text-align: center;">
+                <p style="margin-bottom: 15px;">Logged in as: <strong id="loggedInUsername"></strong></p>
+                <p style="margin-bottom: 15px; color: #9ca3af;">Stats are saved automatically!</p>
+                <button class="play-button" style="background: linear-gradient(135deg, #ef4444, #dc2626);" onclick="logoutAccount()">Logout</button>
+            </div>
+        </div>
+    </div>
+    <!-- Transfer Modal -->
+    <div class="transfer-modal" id="transferModal">
+        <div class="transfer-content">
+            <button class="casino-close" onclick="closeTransferModal()">×</button>
+            <h2 style="text-align: center; margin-bottom: 20px;">💸 Transfer Funds</h2>
+            <div class="fee-info">⚠️ A 1% fee is applied to all transfers</div>
+            <input type="text" id="transferToUser" placeholder="Recipient Username" style="width: 100%; padding: 14px; border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; background: rgba(0,0,0,0.2); color: white; font-size: 16px; margin-bottom: 15px;">
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <input type="number" id="transferCredits" placeholder="Credits" style="flex: 1; padding: 14px; border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; background: rgba(0,0,0,0.2); color: white; font-size: 16px;">
+                <input type="number" id="transferPlays" placeholder="Plays" style="flex: 1; padding: 14px; border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; background: rgba(0,0,0,0.2); color: white; font-size: 16px;">
+            </div>
+            <input type="number" id="transferCash" placeholder="Cash ($)" step="0.01" style="width: 100%; padding: 14px; border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; background: rgba(0,0,0,0.2); color: white; font-size: 16px; margin-bottom: 15px;">
+            <button class="play-button" onclick="transferFunds()">Transfer</button>
+        </div>
+    </div>
+    <!-- Buy Credits Modal -->
+    <div class="buy-credits-modal" id="buyCreditsModal">
+        <div class="buy-credits-content">
+            <button class="casino-close" onclick="closeBuyCreditsModal()">×</button>
+            <h2 style="text-align: center; margin-bottom: 20px;">💰 Buy Credits</h2>
+            <div style="background: rgba(234, 179, 8, 0.2); border-radius: 15px; padding: 20px; margin-bottom: 20px; text-align: center; border: 1px solid rgba(234, 179, 8, 0.3);">
+                <div style="font-size: 14px; color: #9ca3af;">Your Cash Balance</div>
+                <div style="font-size: 36px; font-weight: bold; color: #a855f7;" id="buyCreditsCash">$0.00</div>
+            </div>
+            <div style="background: rgba(34, 197, 94, 0.2); border-radius: 15px; padding: 20px; margin-bottom: 20px; text-align: center; border: 1px solid rgba(34, 197, 94, 0.3);">
+                <p style="font-size: 18px; margin-bottom: 10px;">💎 Exchange Rate</p>
+                <p style="font-size: 24px; font-weight: bold; color: #fbbf24;">1000 Credits = $0.01</p>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; color: #9ca3af;">Amount of Credits</label>
+                <input type="number" id="buyCreditsAmount" placeholder="Enter credits amount (min 1000)" min="1000" step="1000" value="1000" style="width: 100%; padding: 14px; border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; background: rgba(0,0,0,0.2); color: white; font-size: 16px;">
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 20px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 10px;">
+                <span style="color: #9ca3af;">Cost:</span>
+                <span style="color: #a855f7; font-weight: bold;" id="buyCreditsCost">$0.01</span>
+            </div>
+            <button class="play-button" onclick="purchaseCredits()">Buy Credits</button>
+        </div>
+    </div>
+    <script>
+        // ==================== STATE ====================
+        const DEFAULT_STATE = {
+            credits: 100, plays: 10, cashBalance: 0, isAdmin: false,
+            highScores: { flappy: { easy: 0, medium: 0, hard: 0, impossible: 0 }, geometry: { easy: 0, medium: 0, hard: 0, impossible: 0 } },
+            completedLevels: { flappy: { easy: false, medium: false, hard: false, impossible: false }, geometry: { easy: false, medium: false, hard: false, impossible: false } },
+            ownedSkins: { flappy: ['default'], geometry: ['default', 'heart'] },
+            selectedSkins: { flappy: 'default', geometry: 'default' },
+            lastDailyClaim: 0, sponsorVisited: false, pendingWithdrawals: [], completedTasks: {}, usedPromoCodes: {}
+        };
+        let gameState = JSON.parse(JSON.stringify(DEFAULT_STATE));
+        let currentPage = 'gamesPage', pageHistory = ['gamesPage'];
+        let currentGame = null, currentDifficulty = 'medium';
+        let currentBet = 0.01, selectedRouletteBet = 'red', currentSkinTab = 'flappy';
+        let globalSettings = {};
+        let currentAccount = null;
+        let saveTimeout = null;
+
+        // Audio
+        let audioCtx = null;
+        function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+        function playSound(freq, duration, type) { initAudio(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.type = type || 'square'; osc.frequency.value = freq; gain.gain.value = 0.1; osc.connect(gain); gain.connect(audioCtx.destination); osc.start(); gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration); osc.stop(audioCtx.currentTime + duration); }
+        function playJumpSound() { playSound(400, 0.1, 'square'); }
+        function playCoinSound() { playSound(800, 0.15, 'sine'); setTimeout(() => playSound(1000, 0.15, 'sine'), 50); }
+        function playDeathSound() { playSound(150, 0.3, 'sawtooth'); }
+        function playWinSound() { playSound(523, 0.15, 'sine'); setTimeout(() => playSound(659, 0.15, 'sine'), 100); setTimeout(() => playSound(784, 0.2, 'sine'), 200); }
+        function playPortalSound() { playSound(600, 0.2, 'sine'); setTimeout(() => playSound(800, 0.2, 'sine'), 100); }
+
+        const FLAPPY_SKINS = [
+            { id: 'default', name: 'Default Bird', color: '#fbbf24', cost: 0 },
+            { id: 'red', name: 'Red Bird', color: '#ef4444', cost: 50 },
+            { id: 'blue', name: 'Blue Bird', color: '#3b82f6', cost: 50 },
+            { id: 'green', name: 'Green Bird', color: '#22c55e', cost: 50 },
+            { id: 'purple', name: 'Purple Bird', color: '#a855f7', cost: 75 },
+            { id: 'rainbow', name: 'Rainbow Bird', color: 'linear-gradient(45deg, #ff0000, #ff7700, #ffff00, #00ff00, #0000ff, #8b00ff)', cost: 150 },
+        ];
+        const GEOMETRY_SKINS = [
+            { id: 'default', name: 'Default Cube', color: '#06b6d4', cost: 0 },
+            { id: 'red', name: 'Red Cube', color: '#ef4444', cost: 50 },
+            { id: 'green', name: 'Green Cube', color: '#22c55e', cost: 50 },
+            { id: 'orange', name: 'Orange Cube', color: '#f97316', cost: 50 },
+            { id: 'purple', name: 'Purple Cube', color: '#a855f7', cost: 75 },
+            { id: 'heart', name: '💕 Heart', color: '#ff6b9d', special: 'heart', cost: 0 }
+        ];
+
+        // Level generation
+        function generateLevel(difficulty) {
+            const obstacles = [];
+            let count, spacing, coinCount;
+            switch(difficulty) {
+                case 'easy': count = 10; spacing = 280; coinCount = 5; break;
+                case 'medium': count = 15; spacing = 230; coinCount = 7; break;
+                case 'hard': count = 22; spacing = 190; coinCount = 10; break;
+                case 'impossible': count = 30; spacing = 150; coinCount = 12; break;
+            }
+            for (let i = 0; i < count; i++) {
+                const x = 500 + i * spacing;
+                obstacles.push({ type: 'spike', x, y: 340 });
+                // Add portal occasionally
+                if (i > 0 && i % 5 === 0 && difficulty !== 'easy') {
+                    obstacles.push({ type: 'portal', x: x + 50, y: 200 });
+                }
+            }
+            for (let i = 0; i < coinCount; i++) {
+                const x = 450 + i * (spacing * 0.7);
+                obstacles.push({ type: 'coin', x, y: 280 + Math.random() * 40 });
+            }
+            return obstacles;
+        }
+
+        const GD_LEVELS = {
+            easy: { name: 'Stereo Madness', distance: 400, obstacles: generateLevel('easy') },
+            medium: { name: 'Back On Track', distance: 550, obstacles: generateLevel('medium') },
+            hard: { name: 'Polargeist', distance: 700, obstacles: generateLevel('hard') },
+            impossible: { name: 'Deadlocked', distance: 900, obstacles: generateLevel('impossible') }
+        };
+
+        // Level editor
+        let editorObstacles = [];
+        let currentEditingLevel = null;
+
+        // ==================== INITIALIZATION ====================
+        function loadState() {
+            if (currentAccount) return;
+            try { const saved = localStorage.getItem('gameverse_state'); if (saved) gameState = { ...DEFAULT_STATE, ...JSON.parse(saved) }; }
+            catch (e) { console.error('Load error:', e); }
+        }
+
+        function saveState() {
+            if (currentAccount) {
+                // Debounced server save
+                clearTimeout(saveTimeout);
+                saveTimeout = setTimeout(saveAccountStats, 500);
+                return;
+            }
+            try { localStorage.setItem('gameverse_state', JSON.stringify(gameState)); }
+            catch (e) { console.error('Save error:', e); }
+        }
+
+        async function saveAccountStats() {
+            if (!currentAccount) return;
+            try {
+                const response = await fetch('/api/accounts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'saveStats',
+                        data: {
+                            username: currentAccount.username,
+                            stats: {
+                                credits: gameState.credits,
+                                plays: gameState.plays,
+                                cashBalance: gameState.cashBalance,
+                                highScores: gameState.highScores,
+                                completedLevels: gameState.completedLevels,
+                                ownedSkins: gameState.ownedSkins,
+                                selectedSkins: gameState.selectedSkins,
+                                lastDailyClaim: gameState.lastDailyClaim,
+                                sponsorVisited: gameState.sponsorVisited,
+                                completedTasks: gameState.completedTasks,
+                                usedPromoCodes: gameState.usedPromoCodes
+                            }
+                        }
+                    })
+                });
+                const result = await response.json();
+                if (result.stats) {
+                    // Sync with server
+                    gameState.credits = result.stats.credits;
+                    gameState.plays = result.stats.plays;
+                    gameState.cashBalance = result.stats.cashBalance;
+                    updateUI();
+                }
+            } catch (e) { console.error('Save error:', e); }
+        }
+
+        async function loadGlobalSettings() {
+            try {
+                const response = await fetch('/api/global');
+                globalSettings = await response.json();
+                document.getElementById('withdrawMin').textContent = globalSettings.minWithdraw?.toFixed(2) || '1.00';
+                renderCustomTasks();
+                renderWithdrawMethods();
+                if (gameState.isAdmin) { updatePromoCodesList(); devUpdateWithdrawalList(); updateTasksList(); updateLevelSelect(); updateCustomLevelsList(); updateErrorReportsList(); updateWithdrawMethodsList(); }
+            } catch (e) { console.error('Global load error:', e); reportError('Global settings load error: ' + e.message); }
+        }
+
+        async function saveGlobalSettings(action, data) {
+            try {
+                await fetch('/api/global', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action, data }) });
+                await loadGlobalSettings();
+            } catch (e) { console.error('Global save error:', e); }
+        }
+
+        async function init() {
+            // Try IP-based auto-login first
+            await tryIPAutoLogin();
+            loadState();
+            updateUI();
+            renderFlappyLevels();
+            renderGeometryLevels();
+            renderSkins();
+            loadGlobalSettings();
+            setInterval(updateDailyTimer, 1000);
+            setInterval(checkBroadcasts, 5000); // Check for admin broadcasts
+            setInterval(syncWithServer, 30000); // Sync stats with server every 30 seconds
+            initLevelEditor();
+        }
+        
+        // IP-based auto-login
+        async function tryIPAutoLogin() {
+            try {
+                const response = await fetch('/api/accounts?ip=true');
+                const result = await response.json();
+                
+                if (result.autoLogin && result.account) {
+                    currentAccount = result.account;
+                    gameState = { ...DEFAULT_STATE, ...result.account.stats, isAdmin: result.account.isAdmin };
+                    if (gameState.isAdmin) addDevTab();
+                    saveState();
+                    updateUI();
+                    showNotification('Welcome back, ' + currentAccount.username + '!');
+                }
+            } catch (e) {
+                console.error('Auto-login error:', e);
+            }
+        }
+        
+        // Check for admin broadcasts
+        async function checkBroadcasts() {
+            try {
+                const response = await fetch('/api/global');
+                const settings = await response.json();
+                const broadcasts = settings.adminBroadcasts || [];
+                
+                if (broadcasts.length > 0) {
+                    const lastBroadcast = broadcasts[broadcasts.length - 1];
+                    const lastShown = localStorage.getItem('lastBroadcastId');
+                    
+                    if (lastShown !== String(lastBroadcast.id)) {
+                        localStorage.setItem('lastBroadcastId', lastBroadcast.id);
+                        
+                        if (lastBroadcast.type === 'reward') {
+                            showEmojiRain('🎁🎉💰✨🤑');
+                        }
+                        showCustomMessage(lastBroadcast.message);
+                    }
+                }
+            } catch (e) {
+                console.error('Broadcast check error:', e);
+            }
+        }
+        
+        // Sync stats with server
+        async function syncWithServer() {
+            if (!currentAccount) return;
+            
+            try {
+                // Get latest stats from server
+                const response = await fetch('/api/accounts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        action: 'getStats', 
+                        data: { username: currentAccount.username } 
+                    })
+                });
+                const result = await response.json();
+                
+                if (result.success && result.stats) {
+                    // Merge with local state (keep higher values)
+                    gameState.credits = Math.max(gameState.credits, result.stats.credits);
+                    gameState.plays = Math.max(gameState.plays, result.stats.plays);
+                    gameState.cashBalance = Math.max(gameState.cashBalance, result.stats.cashBalance);
+                    updateUI();
+                }
+                
+                // Save current stats to server
+                await saveStateToServer();
+            } catch (e) {
+                console.error('Sync error:', e);
+            }
+        }
+
+        function addDevTab() {
+            if (!document.getElementById('devTab')) {
+                const btn = document.createElement('button');
+                btn.className = 'menu-tab dev';
+                btn.id = 'devTab';
+                btn.textContent = '👨‍💻 Admin';
+                btn.onclick = () => switchMainTab('dev');
+                document.getElementById('menuContainer').appendChild(btn);
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('creditsDisplay').textContent = gameState.credits;
+            document.getElementById('playsDisplay').textContent = gameState.plays;
+            document.getElementById('cashDisplay').textContent = '$' + gameState.cashBalance.toFixed(2);
+            document.getElementById('totalCredits').textContent = gameState.credits;
+            document.getElementById('totalPlays').textContent = gameState.plays;
+            document.getElementById('totalCash').textContent = '$' + gameState.cashBalance.toFixed(2);
+            document.getElementById('casinoBalance').textContent = gameState.cashBalance.toFixed(2);
+            document.getElementById('shopCredits').textContent = gameState.credits;
+            document.getElementById('withdrawBalance').textContent = '$' + gameState.cashBalance.toFixed(2);
+            document.getElementById('buyCreditsCash').textContent = '$' + gameState.cashBalance.toFixed(2);
+            document.getElementById('geometrySkins').textContent = gameState.ownedSkins.geometry.length;
+            document.getElementById('flappyBest').textContent = Math.max(...Object.values(gameState.highScores.flappy));
+            document.getElementById('geometryBest').textContent = Math.max(...Object.values(gameState.highScores.geometry));
+            document.getElementById('accountName').textContent = currentAccount ? currentAccount.username : 'Guest';
+        }
+
+        function showNotification(msg) {
+            const el = document.createElement('div'); el.className = 'notification'; el.textContent = msg;
+            document.getElementById('notificationContainer').appendChild(el); setTimeout(() => el.remove(), 2000);
+        }
+
+        // ==================== ACCOUNT SYSTEM ====================
+        function showAccountModal() {
+            document.getElementById('accountModal').classList.add('active');
+            if (currentAccount) {
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('registerForm').style.display = 'none';
+                document.getElementById('accountInfo').style.display = 'block';
+                document.getElementById('loggedInUsername').textContent = currentAccount.username;
+            } else {
+                document.getElementById('loginForm').style.display = 'block';
+                document.getElementById('accountInfo').style.display = 'none';
+            }
+        }
+        function closeAccountModal() { document.getElementById('accountModal').classList.remove('active'); }
+        function switchAccountTab(tab) {
+            document.querySelectorAll('.account-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.account-form').forEach(f => f.classList.remove('active'));
+            if (tab === 'login') { document.querySelector('.account-tab:first-child').classList.add('active'); document.getElementById('loginForm').classList.add('active'); }
+            else { document.querySelector('.account-tab:last-child').classList.add('active'); document.getElementById('registerForm').classList.add('active'); }
+        }
+        async function loginAccount() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            if (!username || !password) { showNotification('Please enter username and password'); return; }
+            try {
+                const response = await fetch('/api/accounts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'login', data: { username, password } }) });
+                const result = await response.json();
+                if (result.success) {
+                    currentAccount = result.account;
+                    gameState = { ...DEFAULT_STATE, ...result.account.stats, isAdmin: result.account.isAdmin };
+                    if (gameState.isAdmin) addDevTab();
+                    saveState(); updateUI(); closeAccountModal();
+                    showNotification('Welcome back, ' + currentAccount.username + '!');
+                } else { showNotification(result.error || 'Login failed'); }
+            } catch (e) { showNotification('Connection error'); }
+        }
+        async function registerAccount() {
+            const username = document.getElementById('registerUsername').value.trim();
+            const password = document.getElementById('registerPassword').value;
+            if (!username) { showNotification('Please enter a username'); return; }
+            if (username.length < 3 || username.length > 20) { showNotification('Username must be 3-20 characters'); return; }
+            try {
+                const response = await fetch('/api/accounts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'register', data: { username, password: password || '' } }) });
+                const result = await response.json();
+                if (result.success) {
+                    currentAccount = result.account;
+                    gameState = { ...DEFAULT_STATE, ...result.account.stats };
+                    saveState(); updateUI(); closeAccountModal();
+                    showNotification('Account created! Welcome, ' + currentAccount.username + '!');
+                } else { showNotification(result.error || 'Registration failed'); }
+            } catch (e) { showNotification('Connection error'); }
+        }
+        function logoutAccount() {
+            currentAccount = null;
+            gameState = JSON.parse(JSON.stringify(DEFAULT_STATE));
+            localStorage.removeItem('gameverse_state');
+            if (document.getElementById('devTab')) document.getElementById('devTab').remove();
+            updateUI(); closeAccountModal();
+            showNotification('Logged out!');
+        }
+        
+        // Guest registration
+        async function loginAsGuest() {
+            const guestName = 'guest_' + Math.random().toString(36).substring(2, 10);
+            try {
+                const response = await fetch('/api/accounts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'register', data: { username: guestName } }) });
+                const result = await response.json();
+                if (result.success) {
+                    currentAccount = result.account;
+                    gameState = { ...DEFAULT_STATE, ...result.account.stats };
+                    saveState(); updateUI(); closeAccountModal();
+                    showNotification('Welcome, Guest!');
+                } else { showNotification(result.error || 'Guest login failed'); }
+            } catch (e) { showNotification('Connection error'); reportError('Guest login error: ' + e.message); }
+        }
+        
+        // Error reporting to admin
+        async function reportError(message) {
+            try {
+                await fetch('/api/global', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'reportError', data: { message: message, user: currentAccount?.username || 'guest' } }) });
+            } catch (e) {}
+        }
+        
+        // Watch ad with SDK
+        async function watchAd() {
+            try {
+                if (typeof show_10612522 === 'function') {
+                    await show_10612522();
+                    gameState.plays += 10;
+                    saveState(); updateUI();
+                    showNotification('+10 Plays!');
+                } else if (typeof show_10612522 === 'function') {
+                    show_10612522('pop').then(() => {
+                        gameState.plays += 10;
+                        saveState(); updateUI();
+                        showNotification('+10 Plays!');
+                    }).catch(e => {
+                        showNotification('No ads available', true);
+                        reportError('Ad error: ' + e);
+                    });
+                } else {
+                    showNotification('No ads available', true);
+                    reportError('Ad SDK not loaded');
+                }
+            } catch (e) {
+                showNotification('No ads available', true);
+                reportError('Ad error: ' + e.message);
+            }
+        }
+
+        // ==================== BUY CREDITS ====================
+        function showBuyCreditsModal() {
+            document.getElementById('buyCreditsModal').classList.add('active');
+            updateBuyCreditsCost();
+        }
+        function closeBuyCreditsModal() { document.getElementById('buyCreditsModal').classList.remove('active'); }
+        function updateBuyCreditsCost() {
+            const amount = parseInt(document.getElementById('buyCreditsAmount').value) || 0;
+            const cost = (amount / 1000) * 0.01;
+            document.getElementById('buyCreditsCost').textContent = '$' + cost.toFixed(4);
+        }
+        document.getElementById('buyCreditsAmount')?.addEventListener('input', updateBuyCreditsCost);
+        
+        async function purchaseCredits() {
+            if (!currentAccount) { showNotification('Please login to buy credits'); closeBuyCreditsModal(); showAccountModal(); return; }
+            const amount = parseInt(document.getElementById('buyCreditsAmount').value) || 0;
+            if (amount < 1000) { showNotification('Minimum 1000 credits'); return; }
+            const cost = (amount / 1000) * 0.01;
+            if (gameState.cashBalance < cost) { showNotification('Insufficient cash balance'); return; }
+            try {
+                const response = await fetch('/api/accounts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'buyCredits', data: { username: currentAccount.username, amount } }) });
+                const result = await response.json();
+                if (result.success) {
+                    gameState.credits = result.credits;
+                    gameState.cashBalance = result.cashBalance;
+                    saveState(); updateUI(); closeBuyCreditsModal();
+                    showNotification('+' + amount + ' Credits purchased!');
+                } else { showNotification(result.error || 'Purchase failed'); }
+            } catch (e) { showNotification('Connection error'); }
+        }
+
+        // ==================== TRANSFER SYSTEM ====================
+        function showTransferModal() { if (!currentAccount) { showNotification('Please login to transfer funds'); return; } document.getElementById('transferModal').classList.add('active'); }
+        function closeTransferModal() { document.getElementById('transferModal').classList.remove('active'); }
+        async function transferFunds() {
+            const toUser = document.getElementById('transferToUser').value.trim();
+            const credits = parseInt(document.getElementById('transferCredits').value) || 0;
+            const plays = parseInt(document.getElementById('transferPlays').value) || 0;
+            const cash = parseFloat(document.getElementById('transferCash').value) || 0;
+            if (!toUser) { showNotification('Please enter recipient username'); return; }
+            if (credits <= 0 && plays <= 0 && cash <= 0) { showNotification('Please enter an amount to transfer'); return; }
+            try {
+                const response = await fetch('/api/accounts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'transfer', data: { fromUser: currentAccount.username, toUser, credits, plays, cash } }) });
+                const result = await response.json();
+                if (result.success) {
+                    const fee = 1.01;
+                    if (credits > 0) gameState.credits -= Math.ceil(credits * fee);
+                    if (plays > 0) gameState.plays -= Math.ceil(plays * fee);
+                    if (cash > 0) gameState.cashBalance -= cash * fee;
+                    saveState(); updateUI(); closeTransferModal();
+                    showNotification('Transfer complete! 1% fee applied');
+                } else { showNotification(result.error || 'Transfer failed'); }
+            } catch (e) { showNotification('Connection error'); }
+        }
+
+        // ==================== SPECIAL EFFECTS ====================
+        function showEmojiRain(emojis) {
+            const container = document.getElementById('effectsContainer');
+            const emojiList = emojis.split('');
+            for (let i = 0; i < 40; i++) {
+                setTimeout(() => {
+                    const el = document.createElement('div'); el.className = 'falling-emoji';
+                    el.textContent = emojiList[Math.floor(Math.random() * emojiList.length)];
+                    el.style.left = Math.random() * 100 + '%';
+                    el.style.animationDuration = (3 + Math.random() * 3) + 's';
+                    container.appendChild(el); setTimeout(() => el.remove(), 6000);
+                }, i * 100);
+            }
+        }
+        function showCustomMessage(text) {
+            const container = document.getElementById('effectsContainer');
+            const el = document.createElement('div'); el.className = 'custom-message';
+            el.innerHTML = text.replace(/\n/g, '<br>');
+            el.style.color = '#ff6b9d'; el.style.textShadow = '0 0 30px #ff6b9d';
+            container.appendChild(el); setTimeout(() => el.remove(), 5000);
+        }
+
+        // ==================== NAVIGATION ====================
+        function switchMainTab(tab) {
+            const pages = { games: 'gamesPage', tasks: 'tasksPage', skins: 'skinsPage', withdraw: 'withdrawPage', dev: 'devPage' };
+            showPage(pages[tab]);
+            document.querySelectorAll('.menu-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(tab + 'Tab')?.classList.add('active');
+        }
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            if (pageId !== currentPage) { pageHistory.push(pageId); currentPage = pageId; }
+            document.getElementById('backBtn').classList.toggle('visible', pageId !== 'gamesPage');
+        }
+        function goBack() {
+            if (pageHistory.length > 1) {
+                pageHistory.pop(); const prevPage = pageHistory[pageHistory.length - 1];
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                document.getElementById(prevPage).classList.add('active'); currentPage = prevPage;
+                document.getElementById('backBtn').classList.toggle('visible', prevPage !== 'gamesPage');
+            }
+        }
+        function goHome() { showPage('gamesPage'); pageHistory = ['gamesPage']; document.querySelectorAll('.menu-tab').forEach(t => t.classList.remove('active')); document.getElementById('gamesTab').classList.add('active'); }
+
+        // ==================== CASINO ====================
+        function openCasino() { document.getElementById('casinoModal').classList.add('active'); }
+        function closeCasino() { document.getElementById('casinoModal').classList.remove('active'); }
+        function switchCasinoGame(game) { document.querySelectorAll('.casino-game').forEach(g => g.classList.remove('active')); document.getElementById(game + 'Game').classList.add('active'); document.querySelectorAll('.casino-tab').forEach(t => t.classList.remove('active')); event.target.classList.add('active'); }
+        function adjustBet(amount) { currentBet = Math.max(0.01, Math.min(gameState.cashBalance, currentBet + amount)); ['blackjackBet', 'plinkoBet', 'hiloBet', 'rouletteBet'].forEach(id => document.getElementById(id).textContent = currentBet.toFixed(2)); }
+        let bjGame = null;
+        function blackjackDeal() {
+            if (gameState.cashBalance < currentBet) { showNotification('Not enough cash!'); return; }
+            gameState.cashBalance -= currentBet; saveState(); updateUI();
+            bjGame = { deck: shuffleDeck(), player: [], dealer: [], standing: false };
+            bjGame.player.push(drawCard(), drawCard()); bjGame.dealer.push(drawCard(), drawCard(true));
+            renderBlackjack();
+            document.getElementById('blackjackActions').style.display = 'flex';
+            document.getElementById('blackjackDeal').style.display = 'none';
+        }
+        function blackjackHit() { 
+            bjGame.player.push(drawCard()); 
+            renderBlackjack(); 
+            const ps = calcScore(bjGame.player);
+            // Rigged: Force bust more often when close to 21
+            if (ps > 16 && Math.random() < 0.3) {
+                bjGame.player.push({ suit: '♠', value: '10', hidden: false });
+                renderBlackjack();
+            }
+            if (calcScore(bjGame.player) > 21) { bjGame.standing = true; endBlackjack(); } 
+        }
+        function blackjackStand() { 
+            bjGame.standing = true; 
+            bjGame.dealer[1].hidden = false; 
+            const playerScore = calcScore(bjGame.player);
+            
+            // Rigged: Dealer always wins if player has less than 19 (40% chance)
+            if (playerScore < 19 && Math.random() < 0.4) {
+                while (calcScore(bjGame.dealer) < playerScore || calcScore(bjGame.dealer) < 17) {
+                    bjGame.dealer.push(drawCard());
+                }
+            } else {
+                while (calcScore(bjGame.dealer) < 17) bjGame.dealer.push(drawCard());
+            }
+            renderBlackjack(); 
+            endBlackjack(); 
+        }
+        function endBlackjack() {
+            const ps = calcScore(bjGame.player), ds = calcScore(bjGame.dealer); let result = '';
+            if (ps > 21) result = 'Bust!'; 
+            else if (ds > 21) { result = 'Dealer busts!'; gameState.cashBalance += currentBet * 1.9; }
+            else if (ps > ds) { result = 'You win!'; gameState.cashBalance += currentBet * 1.9; } 
+            else if (ds > ps) result = 'Dealer wins';
+            else { result = 'Push!'; gameState.cashBalance += currentBet; }
+            saveState(); updateUI(); document.getElementById('playerScore').textContent = ps + ' - ' + result;
+            document.getElementById('blackjackActions').style.display = 'none'; document.getElementById('blackjackDeal').style.display = 'block';
+        }
+        function renderBlackjack() {
+            document.getElementById('playerCards').innerHTML = bjGame.player.map(c => '<div class="card ' + (c.hidden ? 'hidden' : '') + ' ' + (c.suit === '♥' || c.suit === '♦' ? 'red' : '') + '">' + (c.hidden ? '?' : c.value + c.suit) + '</div>').join('');
+            document.getElementById('dealerCards').innerHTML = bjGame.dealer.map(c => '<div class="card ' + (c.hidden ? 'hidden' : '') + ' ' + (c.suit === '♥' || c.suit === '♦' ? 'red' : '') + '">' + (c.hidden ? '?' : c.value + c.suit) + '</div>').join('');
+            document.getElementById('playerScore').textContent = calcScore(bjGame.player);
+            document.getElementById('dealerScore').textContent = calcScore(bjGame.dealer.filter(c => !c.hidden));
+        }
+        function shuffleDeck() { const suits = ['♠', '♥', '♦', '♣'], values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'], deck = []; suits.forEach(s => values.forEach(v => deck.push({ suit: s, value: v, hidden: false }))); return deck.sort(() => Math.random() - 0.5); }
+        function drawCard(hidden) { const card = bjGame.deck.pop(); card.hidden = hidden; return card; }
+        function calcScore(hand) { let score = 0, aces = 0; hand.forEach(c => { if (c.hidden) return; if (c.value === 'A') { aces++; score += 11; } else if (['K', 'Q', 'J'].includes(c.value)) score += 10; else score += parseInt(c.value); }); while (score > 21 && aces--) score -= 10; return score; }
+        let plinkoGame = null;
+        function playPlinko() { 
+            if (gameState.cashBalance < currentBet) { showNotification('Not enough cash!'); return; } 
+            gameState.cashBalance -= currentBet; 
+            saveState(); updateUI();
+            
+            // Show plinko canvas
+            const canvas = document.getElementById('plinkoCanvas');
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                canvas.width = 300; canvas.height = 300;
+                
+                // Rigged: 70% chance for 0.5x, 20% for 1x, 10% for higher
+                const rand = Math.random();
+                let result;
+                if (rand < 0.70) result = 0.5;
+                else if (rand < 0.90) result = 1;
+                else if (rand < 0.95) result = 1.5;
+                else if (rand < 0.98) result = 2;
+                else result = 3;
+                
+                // Draw plinko board
+                ctx.fillStyle = '#1a1a2e';
+                ctx.fillRect(0, 0, 300, 300);
+                
+                // Draw pins
+                ctx.fillStyle = '#06b6d4';
+                for (let row = 0; row < 8; row++) {
+                    for (let col = 0; col <= row; col++) {
+                        const x = 150 - row * 18 + col * 36;
+                        const y = 40 + row * 30;
+                        ctx.beginPath();
+                        ctx.arc(x, y, 5, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+                
+                // Draw multipliers at bottom
+                const multipliers = [0.5, 1, 1.5, 2, 3, 2, 1.5, 1, 0.5];
+                ctx.font = 'bold 12px Arial';
+                ctx.textAlign = 'center';
+                multipliers.forEach((m, i) => {
+                    ctx.fillStyle = m === result ? '#fbbf24' : '#64748b';
+                    ctx.fillText(m + 'x', 30 + i * 30, 280);
+                });
+                
+                // Animate ball falling
+                let ballY = 10;
+                let ballX = 150;
+                let finalSlot = multipliers.indexOf(result);
+                const animateBall = () => {
+                    ctx.fillStyle = '#1a1a2e';
+                    ctx.fillRect(ballX - 10, ballY - 15, 20, 20);
+                    
+                    // Redraw pins
+                    ctx.fillStyle = '#06b6d4';
+                    for (let row = 0; row < 8; row++) {
+                        for (let col = 0; col <= row; col++) {
+                            const x = 150 - row * 18 + col * 36;
+                            const y = 40 + row * 30;
+                            ctx.beginPath();
+                            ctx.arc(x, y, 5, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
+                    }
+                    
+                    ballY += 5;
+                    if (ballY < 250) {
+                        ballX = 150 + (Math.random() - 0.5) * 20 + (finalSlot - 4) * 5;
+                        ctx.fillStyle = '#ef4444';
+                        ctx.beginPath();
+                        ctx.arc(ballX, ballY, 8, 0, Math.PI * 2);
+                        ctx.fill();
+                        requestAnimationFrame(animateBall);
+                    } else {
+                        // Ball landed
+                        gameState.cashBalance += currentBet * result; 
+                        saveState(); updateUI();
+                        showNotification(result + 'x - $' + (currentBet * result).toFixed(2));
+                    }
+                };
+                animateBall();
+            } else {
+                // Fallback without canvas
+                const rand = Math.random();
+                let result;
+                if (rand < 0.70) result = 0.5;
+                else if (rand < 0.90) result = 1;
+                else if (rand < 0.95) result = 1.5;
+                else result = 2;
+                gameState.cashBalance += currentBet * result;
+                saveState(); updateUI();
+                showNotification(result + 'x - $' + (currentBet * result).toFixed(2));
+            }
+        }
+        let hiloGame = null;
+        function startHilo() { if (gameState.cashBalance < currentBet) { showNotification('Not enough cash!'); return; } gameState.cashBalance -= currentBet; hiloGame = { card: Math.floor(Math.random() * 13) + 1, multiplier: 1, bet: currentBet, rounds: 0 }; renderHiloCard(); document.getElementById('hiloButtons').style.display = 'flex'; document.getElementById('hiloStart').style.display = 'none'; document.getElementById('hiloMultiplier').textContent = '1.0x'; document.getElementById('hiloPotential').textContent = 'Potential: $' + currentBet.toFixed(2); saveState(); updateUI(); }
+        function hiloGuess(guess) { 
+            // Rigged: after 2 rounds, 60% chance to lose
+            let newCard;
+            if (hiloGame.rounds >= 2 && Math.random() < 0.60) {
+                // Force a loss
+                if (guess === 'higher') newCard = Math.max(1, hiloGame.card - Math.floor(Math.random() * 3) - 1);
+                else newCard = Math.min(13, hiloGame.card + Math.floor(Math.random() * 3) + 1);
+            } else {
+                newCard = Math.floor(Math.random() * 13) + 1;
+            }
+            const won = (guess === 'higher' && newCard >= hiloGame.card) || (guess === 'lower' && newCard <= hiloGame.card); 
+            if (won) { hiloGame.card = newCard; hiloGame.multiplier *= 1.4; hiloGame.rounds++; renderHiloCard(); document.getElementById('hiloMultiplier').textContent = hiloGame.multiplier.toFixed(1) + 'x'; document.getElementById('hiloPotential').textContent = 'Potential: $' + (hiloGame.bet * hiloGame.multiplier).toFixed(2); showNotification('Correct! ' + hiloGame.multiplier.toFixed(1) + 'x'); } 
+            else { showNotification('Wrong! You lose!'); document.getElementById('hiloButtons').style.display = 'none'; document.getElementById('hiloStart').style.display = 'block'; saveState(); } 
+        }
+        function hiloCashout() {
+            if (!hiloGame) return;
+            const win = hiloGame.bet * hiloGame.multiplier;
+            gameState.cashBalance += win;
+            saveState(); updateUI();
+            document.getElementById('hiloButtons').style.display = 'none';
+            document.getElementById('hiloStart').style.display = 'block';
+            showNotification('Cashed out $' + win.toFixed(2) + '!');
+        }
+        function renderHiloCard() { const c = hiloGame.card; document.getElementById('hiloCardDisplay').textContent = c === 1 ? 'A' : c === 11 ? 'J' : c === 12 ? 'Q' : c === 13 ? 'K' : c; }
+        function selectRouletteBet(type) { selectedRouletteBet = type; showNotification('Selected: ' + type); }
+        function playRoulette() { 
+            if (gameState.cashBalance < currentBet) { showNotification('Not enough cash!'); return; } 
+            gameState.cashBalance -= currentBet; 
+            
+            // Rigged: Green only 3%, Red/Black slightly less than 50%
+            const rand = Math.random();
+            let num;
+            if (rand < 0.03) num = 0; // 3% green
+            else if (rand < 0.48) num = 1; // ~45% red
+            else num = 2; // ~52% black
+            
+            const isGreen = num === 0;
+            const isRed = num === 1;
+            let won = false, mult = 0;
+            if (selectedRouletteBet === 'red' && isRed) { won = true; mult = 1.9; }
+            else if (selectedRouletteBet === 'black' && !isRed && !isGreen) { won = true; mult = 1.9; }
+            else if (selectedRouletteBet === 'green' && isGreen) { won = true; mult = 9; }
+            if (won) { gameState.cashBalance += currentBet * mult; showNotification('Won $' + (currentBet * mult).toFixed(2)); }
+            else showNotification('Lose!', true);
+            saveState(); updateUI();
+        }
+
+        // ==================== FLAPPY BIRD ====================
+        function renderFlappyLevels() {
+            const container = document.getElementById('flappyLevels');
+            container.innerHTML = ['easy', 'medium', 'hard', 'impossible'].map(d => '<div class="level-card ' + d + '" onclick="startFlappy(\'' + d + '\')"><div class="level-header"><span class="level-badge">' + d + '</span><span class="level-reward">💰 +10</span></div><div class="level-name">' + d.charAt(0).toUpperCase() + d.slice(1) + '</div><div class="level-details"><span>Pipes needed: ' + (d === 'easy' ? 15 : d === 'medium' ? 25 : d === 'hard' ? 35 : 45) + '</span></div>' + (gameState.completedLevels.flappy[d] ? '<div class="level-completed">✅ Completed</div>' : '') + '<button class="play-btn flappy" ' + (gameState.plays <= 0 ? 'disabled' : '') + '>Play (1 🎯)</button></div>').join('');
+        }
+        let flappyGame = null;
+        function startFlappy(difficulty) {
+            if (gameState.plays <= 0) { showNotification('No plays left!'); return; }
+            gameState.plays--; saveState(); updateUI();
+            currentGame = 'flappy'; currentDifficulty = difficulty;
+            showPage('flappyGame'); document.getElementById('flappyDifficulty').textContent = difficulty.toUpperCase();
+            const canvas = document.getElementById('flappyCanvas'); const ctx = canvas.getContext('2d');
+            const pipesToWin = difficulty === 'easy' ? 15 : difficulty === 'medium' ? 25 : difficulty === 'hard' ? 35 : 45;
+            const config = { easy: { speed: 2.5, gap: 200, gravity: 0.35, jump: -7, pipeSpacing: 220 }, medium: { speed: 3, gap: 180, gravity: 0.38, jump: -7.5, pipeSpacing: 200 }, hard: { speed: 3.5, gap: 160, gravity: 0.42, jump: -8, pipeSpacing: 180 }, impossible: { speed: 4, gap: 140, gravity: 0.45, jump: -8.5, pipeSpacing: 160 } }[difficulty];
+            flappyGame = { bird: { x: 80, y: 300, vel: 0, rotation: 0 }, pipes: [], coins: [], particles: [], score: 0, coinsCollected: 0, config, running: true, started: false, won: false, time: 0, bgOffset: 0 };
+            let groundY = 550;
+            function jump() { if (!flappyGame.running) return; flappyGame.bird.vel = config.jump; flappyGame.started = true; addParticles(flappyGame.bird.x, flappyGame.bird.y + 15, 5, '#fbbf24'); playJumpSound(); }
+            canvas.onclick = jump; document.onkeydown = (e) => { if (e.code === 'Space') { e.preventDefault(); jump(); } };
+            function addParticles(x, y, count, color) { for (let i = 0; i < count; i++) flappyGame.particles.push({ x, y, vx: (Math.random() - 0.5) * 4, vy: (Math.random() - 0.5) * 4, life: 30, color }); }
+            function loop() {
+                if (!flappyGame.running) return;
+                flappyGame.time++; flappyGame.bgOffset += config.speed * 0.3;
+                let bgGrad = ctx.createLinearGradient(0, 0, 0, 600); bgGrad.addColorStop(0, '#1a1a2e'); bgGrad.addColorStop(0.5, '#16213e'); bgGrad.addColorStop(1, '#0f3460'); ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, 400, 600);
+                ctx.fillStyle = 'rgba(255,255,255,0.5)'; for (let i = 0; i < 30; i++) { const sx = ((i * 47 + flappyGame.bgOffset * 0.5) % 450) - 25; const sy = (i * 31) % 500; ctx.beginPath(); ctx.arc(sx, sy, 1 + Math.sin(flappyGame.time * 0.05 + i) * 0.5, 0, Math.PI * 2); ctx.fill(); }
+                if (flappyGame.started) {
+                    flappyGame.bird.vel += config.gravity; flappyGame.bird.y += flappyGame.bird.vel; flappyGame.bird.rotation = Math.min(Math.max(flappyGame.bird.vel * 3, -30), 70);
+                    if (flappyGame.pipes.length === 0 || flappyGame.pipes[flappyGame.pipes.length - 1].x < 400 - config.pipeSpacing) { const gapY = Math.random() * (groundY - config.gap - 100) + 50; flappyGame.pipes.push({ x: 420, gapY, scored: false }); flappyGame.coins.push({ x: 420, y: gapY + config.gap / 2, collected: false }); }
+                    flappyGame.pipes.forEach(p => p.x -= config.speed); flappyGame.coins.forEach(c => c.x -= config.speed);
+                    flappyGame.pipes = flappyGame.pipes.filter(p => p.x > -70); flappyGame.coins = flappyGame.coins.filter(c => c.x > -30);
+                    flappyGame.pipes.forEach(p => {
+                        if (flappyGame.bird.x + 18 > p.x && flappyGame.bird.x - 18 < p.x + 55) { if (flappyGame.bird.y - 12 < p.gapY || flappyGame.bird.y + 12 > p.gapY + config.gap) { flappyGame.running = false; addParticles(flappyGame.bird.x, flappyGame.bird.y, 15, '#ef4444'); playDeathSound(); } }
+                        if (p.x + 55 < flappyGame.bird.x && !p.scored) { p.scored = true; flappyGame.score++; addParticles(350, 30, 3, '#22c55e'); if (flappyGame.score >= pipesToWin) { flappyGame.won = true; flappyGame.running = false; playWinSound(); } }
+                    });
+                    flappyGame.coins.forEach(c => { if (!c.collected && Math.abs(flappyGame.bird.x - c.x) < 25 && Math.abs(flappyGame.bird.y - c.y) < 25) { c.collected = true; flappyGame.coinsCollected++; gameState.credits += 5; playCoinSound(); addParticles(c.x, c.y, 8, '#fbbf24'); } });
+                    if (flappyGame.bird.y > groundY || flappyGame.bird.y < 0) { flappyGame.running = false; addParticles(flappyGame.bird.x, Math.min(flappyGame.bird.y, groundY), 10, '#ef4444'); playDeathSound(); }
+                }
+                ctx.fillStyle = '#065f46'; ctx.fillRect(0, groundY, 400, 600 - groundY); ctx.fillStyle = '#059669'; ctx.fillRect(0, groundY, 400, 8);
+                flappyGame.pipes.forEach(p => { let pipeGrad = ctx.createLinearGradient(p.x, 0, p.x + 55, 0); pipeGrad.addColorStop(0, '#22c55e'); pipeGrad.addColorStop(0.5, '#16a34a'); pipeGrad.addColorStop(1, '#15803d'); ctx.fillStyle = pipeGrad; ctx.fillRect(p.x, 0, 55, p.gapY); ctx.fillRect(p.x, p.gapY + config.gap, 55, groundY - p.gapY - config.gap); ctx.fillStyle = '#16a34a'; ctx.fillRect(p.x - 5, p.gapY - 25, 65, 25); ctx.fillRect(p.x - 5, p.gapY + config.gap, 65, 25); });
+                flappyGame.coins.forEach(c => { if (!c.collected) { ctx.fillStyle = '#fbbf24'; ctx.beginPath(); ctx.arc(c.x, c.y, 12, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#f59e0b'; ctx.beginPath(); ctx.arc(c.x, c.y, 8, 0, Math.PI * 2); ctx.fill(); } });
+                flappyGame.particles = flappyGame.particles.filter(p => { p.x += p.vx; p.y += p.vy; p.life--; ctx.fillStyle = p.color; ctx.globalAlpha = p.life / 30; ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1; return p.life > 0; });
+                ctx.save(); ctx.translate(flappyGame.bird.x, flappyGame.bird.y); ctx.rotate(flappyGame.bird.rotation * Math.PI / 180);
+                const skinColor = FLAPPY_SKINS.find(s => s.id === gameState.selectedSkins.flappy)?.color || '#fbbf24';
+                ctx.fillStyle = skinColor.includes('gradient') ? '#fbbf24' : skinColor; ctx.beginPath(); ctx.arc(0, 0, 16, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.beginPath(); ctx.ellipse(-5, 5 + Math.sin(flappyGame.time * 0.3) * 3, 8, 5, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(6, -4, 6, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = 'black'; ctx.beginPath(); ctx.arc(8, -4, 3, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#f97316'; ctx.beginPath(); ctx.moveTo(14, 0); ctx.lineTo(24, 3); ctx.lineTo(14, 6); ctx.fill();
+                ctx.restore();
+                ctx.fillStyle = 'white'; ctx.font = 'bold 28px Arial'; ctx.textAlign = 'center'; ctx.fillText(flappyGame.score + '/' + pipesToWin, 200, 45);
+                ctx.font = 'bold 18px Arial'; ctx.fillStyle = '#fbbf24'; ctx.fillText('🪙 ' + flappyGame.coinsCollected, 350, 30);
+                if (!flappyGame.started) { ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.font = '20px Arial'; ctx.fillText('Tap to Start', 200, 350); }
+                if (!flappyGame.running) { endFlappyGame(); return; }
+                requestAnimationFrame(loop);
+            }
+            loop();
+        }
+        function endFlappyGame() {
+            document.onkeydown = null;
+            const coinBonus = flappyGame.coinsCollected * 5;
+            if (flappyGame.won) { gameState.credits += 10; gameState.completedLevels.flappy[currentDifficulty] = true; saveState(); updateUI(); showGameOver(true, 10 + coinBonus); }
+            else { if (flappyGame.score > gameState.highScores.flappy[currentDifficulty]) gameState.highScores.flappy[currentDifficulty] = flappyGame.score; saveState(); showGameOver(false, coinBonus, flappyGame.score); }
+        }
+
+        // ==================== GEOMETRY DASH WITH PORTALS ====================
+        function renderGeometryLevels() {
+            const container = document.getElementById('geometryLevels');
+            const customLevels = globalSettings.customLevels || {};
+            const allLevels = { ...GD_LEVELS };
+            Object.entries(customLevels).forEach(([name, data]) => { allLevels[name.toLowerCase().replace(/\s+/g, '_')] = { name, distance: data.distance || 500, obstacles: data.obstacles, isCustom: true }; });
+            container.innerHTML = Object.entries(allLevels).map(([key, level]) => '<div class="level-card ' + (key.includes('impossible') ? 'impossible' : key.includes('hard') ? 'hard' : key.includes('medium') ? 'medium' : 'easy') + '" onclick="startGeometry(\'' + key + '\')"><div class="level-header"><span class="level-badge">' + (level.isCustom ? '⭐' : '') + (key.includes('impossible') ? 'IMPOSSIBLE' : key.includes('hard') ? 'HARD' : key.includes('medium') ? 'MEDIUM' : 'EASY') + '</span><span class="level-reward">💰 +10</span></div><div class="level-name">' + level.name + '</div><div class="level-details"><span>Distance: ' + level.distance + 'm</span></div>' + (gameState.completedLevels.geometry[key] ? '<div class="level-completed">✅ Completed</div>' : '') + '<button class="play-btn geometry" ' + (gameState.plays <= 0 ? 'disabled' : '') + '>Play (1 🎯)</button></div>').join('');
+        }
+        let geometryGame = null;
+        function startGeometry(difficulty) {
+            if (gameState.plays <= 0) { showNotification('No plays left!'); return; }
+            gameState.plays--; saveState(); updateUI();
+            currentGame = 'geometry'; currentDifficulty = difficulty;
+            showPage('geometryGame'); document.getElementById('gdDifficulty').textContent = difficulty.toUpperCase();
+            const canvas = document.getElementById('geometryCanvas'); const ctx = canvas.getContext('2d');
+            const level = GD_LEVELS[difficulty] || (globalSettings.customLevels && Object.entries(globalSettings.customLevels).find(([k, v]) => k.toLowerCase().replace(/\s+/g, '_') === difficulty)?.[1]);
+            if (!level) { showNotification('Level not found!'); return; }
+            const totalDistance = level.distance || 500;
+            const config = { speed: difficulty === 'easy' || difficulty === 'stereo_madness' ? 5 : difficulty === 'medium' ? 6 : difficulty === 'hard' ? 7 : 8, gravity: 0.6, jump: -12 };
+            geometryGame = { player: { x: 100, y: 320, vel: 0, grounded: true, rotation: 0, mode: 'cube' }, obstacles: [...(level.obstacles || generateLevel(difficulty))], distance: 0, coinsCollected: 0, running: true, won: false, config, particles: [], trail: [], time: 0, bgOffset: 0 };
+            document.getElementById('gdModeIndicator').textContent = '🎮 Cube'; document.getElementById('gdModeIndicator').className = 'mode-indicator mode-cube';
+            function jump() {
+                if (!geometryGame.running) return;
+                if (geometryGame.player.mode === 'cube' && geometryGame.player.grounded) { geometryGame.player.vel = config.jump; geometryGame.player.grounded = false; addParticles(geometryGame.player.x, geometryGame.player.y + 15, 8, '#06b6d4'); playJumpSound(); }
+                else if (geometryGame.player.mode === 'ship') { geometryGame.player.vel = -8; playJumpSound(); }
+            }
+            canvas.onclick = jump; document.onkeydown = (e) => { if (e.code === 'Space') { e.preventDefault(); jump(); } };
+            function addParticles(x, y, count, color) { for (let i = 0; i < count; i++) geometryGame.particles.push({ x, y, vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6, life: 25, color, size: 3 + Math.random() * 3 }); }
+            function loop() {
+                if (!geometryGame.running) return;
+                const g = geometryGame; g.time++; g.distance += g.config.speed / 12; g.bgOffset += g.config.speed;
+                // Physics based on mode
+                if (g.player.mode === 'cube') {
+                    g.player.vel += g.config.gravity; g.player.y += g.player.vel;
+                    if (!g.player.grounded) g.player.rotation += g.config.speed * 0.8;
+                    else g.player.rotation = Math.round(g.player.rotation / 90) * 90;
+                    if (g.player.y >= 320) { g.player.y = 320; g.player.vel = 0; g.player.grounded = true; }
+                    if (g.player.y < 30) g.player.y = 30;
+                } else if (g.player.mode === 'ship') {
+                    // Ship mode - hold to fly up, release to fall
+                    g.player.vel += 0.5; g.player.y += g.player.vel;
+                    if (g.player.y >= 320) g.player.y = 320;
+                    if (g.player.y < 30) g.player.y = 30;
+                    g.player.rotation = g.player.vel * 2;
+                }
+                g.trail.push({ x: g.player.x, y: g.player.y, rotation: g.player.rotation });
+                if (g.trail.length > 12) g.trail.shift();
+                // Collision
+                for (const o of g.obstacles) {
+                    const ox = o.x - g.distance * 10;
+                    if (ox > -60 && ox < 170) {
+                        if (o.type === 'spike') {
+                            const spikeHitbox = { left: ox - 20, right: ox + 20, top: 310, bottom: 350 };
+                            if (g.player.x + 15 > spikeHitbox.left && g.player.x - 15 < spikeHitbox.right && g.player.y + 15 > spikeHitbox.top && g.player.y < spikeHitbox.bottom) { g.running = false; addParticles(g.player.x, g.player.y, 20, '#ef4444'); playDeathSound(); break; }
+                        } else if (o.type === 'coin' && !o.collected && Math.abs(g.player.x - ox) < 25 && Math.abs(g.player.y - o.y) < 25) {
+                            o.collected = true; g.coinsCollected++; gameState.credits += 5; playCoinSound(); addParticles(ox, o.y, 8, '#fbbf24');
+                        } else if (o.type === 'portal' && Math.abs(g.player.x - ox) < 30 && Math.abs(g.player.y - o.y) < 50) {
+                            // Toggle mode
+                            g.player.mode = g.player.mode === 'cube' ? 'ship' : 'cube';
+                            document.getElementById('gdModeIndicator').textContent = g.player.mode === 'ship' ? '🚀 Ship' : '🎮 Cube';
+                            document.getElementById('gdModeIndicator').className = 'mode-indicator ' + (g.player.mode === 'ship' ? 'mode-ship' : 'mode-cube');
+                            addParticles(g.player.x, g.player.y, 15, '#ec4899');
+                            playPortalSound();
+                            o.collected = true; // Prevent re-triggering
+                        }
+                    }
+                }
+                const progress = Math.min(100, (g.distance / totalDistance) * 100);
+                document.getElementById('levelProgress').style.width = progress + '%';
+                document.getElementById('progressPercent').textContent = Math.floor(progress) + '%';
+                document.getElementById('progressDistance').textContent = Math.floor(g.distance) + 'm';
+                document.getElementById('coinCount').textContent = '🪙 ' + g.coinsCollected;
+                // Draw background
+                let bgGrad = ctx.createLinearGradient(0, 0, 0, 400); bgGrad.addColorStop(0, '#0f172a'); bgGrad.addColorStop(1, '#1e293b'); ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, 800, 400);
+                ctx.strokeStyle = 'rgba(99, 102, 241, 0.1)'; ctx.lineWidth = 1;
+                for (let i = 0; i < 20; i++) { const lx = (i * 50 - g.bgOffset % 50); ctx.beginPath(); ctx.moveTo(lx, 0); ctx.lineTo(lx, 400); ctx.stroke(); }
+                for (let i = 0; i < 10; i++) { ctx.beginPath(); ctx.moveTo(0, i * 50); ctx.lineTo(800, i * 50); ctx.stroke(); }
+                ctx.fillStyle = '#0e7490'; ctx.fillRect(0, 350, 800, 50); ctx.fillStyle = '#06b6d4'; ctx.fillRect(0, 350, 800, 4);
+                let glowGrad = ctx.createLinearGradient(0, 350, 0, 380); glowGrad.addColorStop(0, 'rgba(6, 182, 212, 0.3)'); glowGrad.addColorStop(1, 'rgba(6, 182, 212, 0)'); ctx.fillStyle = glowGrad; ctx.fillRect(0, 350, 800, 30);
+                // Obstacles
+                g.obstacles.forEach(o => {
+                    const ox = o.x - g.distance * 10;
+                    if (ox > -60 && ox < 860) {
+                        if (o.type === 'spike') {
+                            ctx.fillStyle = '#ef4444'; ctx.beginPath(); ctx.moveTo(ox - 20, 350); ctx.lineTo(ox, 315); ctx.lineTo(ox + 20, 350); ctx.fill();
+                            ctx.fillStyle = 'rgba(239, 68, 68, 0.2)'; ctx.beginPath(); ctx.arc(ox, 335, 30, 0, Math.PI * 2); ctx.fill();
+                        } else if (o.type === 'platform') {
+                            let platGrad = ctx.createLinearGradient(ox, o.y, ox, o.y + 20); platGrad.addColorStop(0, '#8b5cf6'); platGrad.addColorStop(1, '#6366f1'); ctx.fillStyle = platGrad; ctx.fillRect(ox, o.y, o.width || 100, 20);
+                        } else if (o.type === 'coin' && !o.collected) {
+                            ctx.fillStyle = '#fbbf24'; ctx.beginPath(); ctx.arc(ox, o.y, 12, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#f59e0b'; ctx.beginPath(); ctx.arc(ox, o.y, 8, 0, Math.PI * 2); ctx.fill();
+                        } else if (o.type === 'portal' && !o.collected) {
+                            // Portal - magenta rectangle with glow
+                            ctx.fillStyle = '#ec4899'; ctx.fillRect(ox - 15, o.y - 45, 30, 90);
+                            ctx.fillStyle = 'rgba(236, 72, 153, 0.3)'; ctx.beginPath(); ctx.arc(ox, o.y, 50, 0, Math.PI * 2); ctx.fill();
+                            // Arrow inside
+                            ctx.fillStyle = 'white'; ctx.font = 'bold 20px Arial'; ctx.textAlign = 'center'; ctx.fillText(g.player.mode === 'cube' ? '🚀' : '🎮', ox, o.y + 7);
+                        }
+                    }
+                });
+                // Particles
+                g.particles = g.particles.filter(p => { p.x += p.vx; p.y += p.vy; p.life--; ctx.fillStyle = p.color; ctx.globalAlpha = p.life / 25; ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1; return p.life > 0; });
+                // Trail
+                g.trail.forEach((t, i) => { ctx.globalAlpha = (i / g.trail.length) * 0.3; ctx.fillStyle = '#06b6d4'; ctx.beginPath(); ctx.arc(t.x, t.y, 10, 0, Math.PI * 2); ctx.fill(); }); ctx.globalAlpha = 1;
+                // Player
+                ctx.save(); ctx.translate(g.player.x, g.player.y);
+                const skinData = GEOMETRY_SKINS.find(s => s.id === gameState.selectedSkins.geometry);
+                const skinColor = skinData?.color || '#06b6d4';
+                if (skinData && skinData.special === 'heart') {
+                    ctx.fillStyle = skinColor; ctx.beginPath(); const s = 18; ctx.moveTo(0, -s * 0.4); ctx.bezierCurveTo(-s, -s * 0.4, -s, -s * 1.1, 0, -s * 0.6); ctx.bezierCurveTo(s, -s * 1.1, s, -s * 0.4, 0, s * 0.4); ctx.bezierCurveTo(-s, s * 1.1, -s, s * 0.4, 0, -s * 0.4); ctx.fill();
+                    ctx.fillStyle = 'rgba(255,255,255,0.4)'; ctx.beginPath(); ctx.arc(-5, -8, 5, 0, Math.PI * 2); ctx.fill();
+                } else if (g.player.mode === 'ship') {
+                    // Ship shape
+                    ctx.rotate(g.player.rotation * Math.PI / 180 * 0.3);
+                    ctx.fillStyle = skinColor.includes('gradient') ? '#06b6d4' : skinColor;
+                    ctx.beginPath(); ctx.moveTo(25, 0); ctx.lineTo(-15, -20); ctx.lineTo(-10, 0); ctx.lineTo(-15, 20); ctx.closePath(); ctx.fill();
+                    ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.fillRect(-5, -12, 18, 24);
+                } else {
+                    ctx.rotate(g.player.rotation * Math.PI / 180);
+                    ctx.fillStyle = skinColor.includes('gradient') ? '#06b6d4' : skinColor;
+                    ctx.fillRect(-16, -16, 32, 32);
+                    ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 2; ctx.strokeRect(-16, -16, 32, 32);
+                    ctx.fillStyle = 'rgba(255,255,255,0.2)'; ctx.fillRect(-12, -12, 12, 12);
+                }
+                ctx.restore();
+                if (g.distance >= totalDistance) { g.won = true; g.running = false; gameState.completedLevels.geometry[difficulty] = true; gameState.credits += 10; saveState(); updateUI(); showGameOver(true, 10 + g.coinsCollected * 5); playWinSound(); return; }
+                if (!g.running) { endGeometryGame(); return; }
+                requestAnimationFrame(loop);
+            }
+            loop();
+        }
+        function endGeometryGame() { document.onkeydown = null; const score = Math.floor(geometryGame.distance); const coinBonus = geometryGame.coinsCollected * 5; if (score > gameState.highScores.geometry[currentDifficulty]) gameState.highScores.geometry[currentDifficulty] = score; saveState(); showGameOver(false, coinBonus, score); }
+
+        // ==================== GAME OVER ====================
+        function showGameOver(won, reward, score) { document.getElementById('gameOverOverlay').classList.add('active'); document.getElementById('gameOverTitle').textContent = won ? 'Level Complete!' : 'Game Over!'; document.getElementById('completionReward').textContent = won || reward > 0 ? '+' + reward + ' Credits!' : ''; document.getElementById('finalScore').textContent = score || (flappyGame ? flappyGame.score : 0); document.getElementById('bestScore').textContent = 'Best: ' + (gameState.highScores[currentGame]?.[currentDifficulty] || 0); }
+        function closeGameOver() { document.getElementById('gameOverOverlay').classList.remove('active'); goHome(); }
+        function playAgain() { document.getElementById('gameOverOverlay').classList.remove('active'); if (currentGame === 'flappy') startFlappy(currentDifficulty); else startGeometry(currentDifficulty); }
+
+        // ==================== TASKS ====================
+        function updateDailyTimer() {
+            const diff = 24 * 60 * 60 * 1000 - (Date.now() - gameState.lastDailyClaim);
+            if (diff <= 0) { document.getElementById('dailyTimer').textContent = 'Ready!'; document.getElementById('dailyClaimBtn').disabled = false; }
+            else { const h = Math.floor(diff / (1000 * 60 * 60)), m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)), s = Math.floor((diff % (1000 * 60)) / 1000); document.getElementById('dailyTimer').textContent = h + 'h ' + m + 'm ' + s + 's'; document.getElementById('dailyClaimBtn').disabled = true; }
+        }
+        function claimDaily() { if (Date.now() - gameState.lastDailyClaim >= 24 * 60 * 60 * 1000) { gameState.credits += 50; gameState.plays += 20; gameState.lastDailyClaim = Date.now(); saveState(); updateUI(); showNotification('+50 Credits & +20 Plays!'); } }
+        function visitSponsor() { if (!gameState.sponsorVisited) { gameState.plays += 10; gameState.sponsorVisited = true; saveState(); updateUI(); showNotification('+10 Plays!'); } window.open(globalSettings.sponsorLink || 'https://omg10.com/4/10607605', '_blank'); }
+        async function redeemPromo() {
+            const code = document.getElementById('promoInput').value.toUpperCase().trim(); document.getElementById('promoInput').value = '';
+            if (!code) return;
+            if (code === 'TOESJABLOX') { const uses = gameState.usedPromoCodes[code] || 0; if (uses >= 1) { showNotification('Code already used!'); return; } gameState.credits += 100; gameState.plays += 100; gameState.usedPromoCodes[code] = 1; saveState(); updateUI(); showNotification('+100 Credits & +100 Plays!'); return; }
+            if (code === 'ANNA') { showEmojiRain('🌸💖💕🌹🥀'); showCustomMessage('I have a crush on you 💕\nYou make my heart flutter!'); gameState.credits += 50; saveState(); updateUI(); return; }
+            if (code === 'VALENTINE') { const uses = gameState.usedPromoCodes[code] || 0; if (uses >= 1) { showNotification('Code already used!'); return; } if (!gameState.ownedSkins.geometry.includes('heart')) gameState.ownedSkins.geometry.push('heart'); gameState.usedPromoCodes[code] = 1; saveState(); updateUI(); showNotification('💕 Heart skin unlocked!'); return; }
+            if (globalSettings.customPromoCodes && globalSettings.customPromoCodes[code]) {
+                const promo = globalSettings.customPromoCodes[code]; const userUses = gameState.usedPromoCodes[code] || 0;
+                if (promo.maxUses > 0 && userUses >= promo.maxUses) { showNotification('Code usage limit reached!'); return; }
+                gameState.credits += promo.credits || 0; gameState.plays += promo.plays || 0; gameState.cashBalance += promo.cash || 0; gameState.usedPromoCodes[code] = userUses + 1;
+                if (promo.eventType === 'emoji' && promo.emoji) showEmojiRain(promo.emoji); else if (promo.eventType === 'text' && promo.message) showCustomMessage(promo.message);
+                saveState(); updateUI(); showNotification('Code redeemed! +' + (promo.credits || 0) + ' Credits, +' + (promo.plays || 0) + ' Plays'); return;
+            }
+            showNotification('Invalid promo code!');
+        }
+        function renderCustomTasks() {
+            const container = document.getElementById('customTasksContainer');
+            if (!globalSettings.customTasks) return;
+            container.innerHTML = globalSettings.customTasks.map(task => {
+                const lastComplete = gameState.completedTasks[task.id] || 0; const cooldownMs = task.cooldown * 60 * 60 * 1000; const canComplete = Date.now() - lastComplete >= cooldownMs; const timeLeft = cooldownMs - (Date.now() - lastComplete);
+                // Support HTML content for ads
+                if (task.htmlContent && canComplete) {
+                    return '<div class="task-card" style="border-color: rgba(34, 197, 94, 0.3);"><div class="task-info"><div class="task-icon" style="background: linear-gradient(135deg, #22c55e, #10b981);">📺</div><div class="task-details"><h3>' + task.name + '</h3><p>+' + task.reward.credits + ' Credits, +' + task.reward.plays + ' Plays</p></div></div><div class="task-action"><button onclick="completeHtmlTask(' + task.id + ', ' + task.reward.credits + ', ' + task.reward.plays + ', ' + (task.reward.cash || 0) + ', this)" style="background: linear-gradient(135deg, #22c55e, #10b981); color: white;">Complete</button></div></div>';
+                }
+                return '<div class="task-card sponsor"><div class="task-info"><div class="task-icon">🔗</div><div class="task-details"><h3>' + task.name + '</h3><p>+' + task.reward.credits + ' Credits, +' + task.reward.plays + ' Plays</p></div></div><div class="task-action">' + (canComplete ? '<button onclick="completeCustomTask(' + task.id + ', \'' + task.url + '\', ' + task.reward.credits + ', ' + task.reward.plays + ', ' + (task.reward.cash || 0) + ')">Visit</button>' : '<span class="timer-badge">' + Math.floor(timeLeft / (1000*60*60)) + 'h ' + Math.floor((timeLeft % (1000*60*60)) / (1000*60)) + 'm</span>') + '</div></div>';
+            }).join('');
+        }
+        function completeHtmlTask(id, credits, plays, cash, btn) {
+            gameState.credits += credits || 0; gameState.plays += plays || 0; gameState.cashBalance += cash || 0; gameState.completedTasks[id] = Date.now(); saveState(); updateUI(); showNotification('+' + credits + ' Credits, +' + plays + ' Plays!');
+            renderCustomTasks();
+        }
+        function completeCustomTask(id, url, credits, plays, cash) { gameState.credits += credits || 0; gameState.plays += plays || 0; gameState.cashBalance += cash || 0; gameState.completedTasks[id] = Date.now(); saveState(); updateUI(); showNotification('+' + credits + ' Credits, +' + plays + ' Plays!'); window.open(url, '_blank'); renderCustomTasks(); }
+
+        // ==================== SKINS ====================
+        function switchSkinTab(tab) { currentSkinTab = tab; document.querySelectorAll('.tab').forEach(t => { t.classList.remove('active', 'flappy', 'geometry'); }); document.querySelector('.tab.' + tab).classList.add('active', tab); renderSkins(); }
+        function renderSkins() {
+            const grid = document.getElementById('skinsGrid');
+            const skins = currentSkinTab === 'flappy' ? FLAPPY_SKINS : GEOMETRY_SKINS;
+            const owned = currentSkinTab === 'flappy' ? gameState.ownedSkins.flappy : gameState.ownedSkins.geometry;
+            const selected = currentSkinTab === 'flappy' ? gameState.selectedSkins.flappy : gameState.selectedSkins.geometry;
+            grid.innerHTML = skins.map(skin => {
+                const isOwned = owned.includes(skin.id); const isSelected = selected === skin.id;
+                return '<div class="shop-skin-card ' + (isOwned ? 'owned' : '') + '"><div class="shop-skin-preview ' + (currentSkinTab === 'geometry' ? 'square' : '') + '" style="background: ' + skin.color + ';"></div><h4>' + skin.name + '</h4>' + (isOwned ? '<div class="owned-badge">✓ Owned</div>' : '<p style="color: #fbbf24;">💰 ' + skin.cost + '</p>') + (isOwned ? (isSelected ? '<button class="equip-btn ' + currentSkinTab + '" disabled>Equipped</button>' : '<button class="equip-btn ' + currentSkinTab + '" onclick="equipSkin(\'' + currentSkinTab + '\', \'' + skin.id + '\')">Equip</button>') : '<button class="buy-btn" onclick="buySkin(\'' + currentSkinTab + '\', \'' + skin.id + '\', ' + skin.cost + ')">Buy</button>') + '</div>';
+            }).join('');
+        }
+        function buySkin(game, id, cost) { if (gameState.credits < cost) { showNotification('Not enough credits!'); return; } gameState.credits -= cost; gameState.ownedSkins[game].push(id); saveState(); updateUI(); renderSkins(); showNotification('Skin purchased!'); }
+        function equipSkin(game, id) { gameState.selectedSkins[game] = id; saveState(); renderSkins(); showNotification('Skin equipped!'); }
+
+        // ==================== WITHDRAW ====================
+        async function submitWithdrawal() {
+            const amount = parseFloat(document.getElementById('withdrawAmount').value); const method = document.getElementById('withdrawMethod').value; const account = document.getElementById('withdrawAccount').value;
+            if (!amount || amount < (globalSettings.minWithdraw || 1)) { showNotification('Minimum withdrawal is $' + (globalSettings.minWithdraw || 1).toFixed(2)); return; }
+            if (amount > gameState.cashBalance) { showNotification('Insufficient balance!'); return; }
+            if (!account) { showNotification('Please enter your account!'); return; }
+            gameState.cashBalance -= amount; gameState.pendingWithdrawals.push({ amount, method, account, status: 'pending', timestamp: Date.now() }); saveState(); updateUI();
+            await saveGlobalSettings('submitWithdrawal', { amount, method, account, user: currentAccount?.username || 'guest' });
+            showNotification('Withdrawal request submitted!');
+        }
+
+        // ==================== DEV FEATURES ====================
+        async function createPromoCode() {
+            const code = document.getElementById('promoCodeName').value.toUpperCase().trim(); const credits = parseInt(document.getElementById('promoCodeCredits').value) || 0; const plays = parseInt(document.getElementById('promoCodePlays').value) || 0; const cash = parseFloat(document.getElementById('promoCodeCash').value) || 0; const maxUses = parseInt(document.getElementById('promoCodeMaxUses').value) || 0; const eventType = document.getElementById('promoCodeEventType').value; const emoji = document.getElementById('promoCodeEmoji').value; const message = document.getElementById('promoCodeMessage').value;
+            if (!code) { showNotification('Please enter a code name!'); return; }
+            await saveGlobalSettings('createPromoCode', { code, credits, plays, cash, maxUses, eventType, emoji, message });
+            showNotification('Promo code created!');
+            document.getElementById('promoCodeName').value = ''; document.getElementById('promoCodeCredits').value = ''; document.getElementById('promoCodePlays').value = ''; document.getElementById('promoCodeCash').value = ''; document.getElementById('promoCodeMaxUses').value = '';
+        }
+        async function deletePromoCode(code) {
+            await saveGlobalSettings('deletePromoCode', { code });
+            await fetch('/api/accounts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'resetPromoCodeUses', data: { adminUser: currentAccount?.username, codeName: code } }) });
+            showNotification('Code deleted and uses reset!');
+        }
+        function updatePromoCodesList() {
+            const list = document.getElementById('promoCodesList'); const codes = globalSettings.customPromoCodes || {};
+            list.innerHTML = Object.entries(codes).map(([code, r]) => '<div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; margin: 5px 0; display: flex; justify-content: space-between; align-items: center;"><div><strong>' + code + '</strong><div style="font-size: 12px; color: #9ca3af;">+' + (r.credits || 0) + ' Credits, +' + (r.plays || 0) + ' Plays, +$' + (r.cash || 0) + ' | Max uses: ' + (r.maxUses > 0 ? r.maxUses : '∞') + (r.eventType !== 'none' ? ' | ' + r.eventType : '') + '</div></div><button class="dev-btn delete" onclick="deletePromoCode(\'' + code + '\')">Delete</button></div>').join('');
+        }
+        async function giveAllPlayers() {
+            const credits = parseInt(document.getElementById('giveCredits').value) || 0; const plays = parseInt(document.getElementById('givePlays').value) || 0; const cash = parseFloat(document.getElementById('giveCash').value) || 0;
+            if (!credits && !plays && !cash) { showNotification('Please enter values!'); return; }
+            
+            // Give to all accounts on server
+            try {
+                const response = await fetch('/api/accounts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'giveToAllAccounts',
+                        data: { adminUser: currentAccount?.username, credits, plays, cash }
+                    })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    // Also update local state
+                    gameState.credits += credits;
+                    gameState.plays += plays;
+                    gameState.cashBalance += cash;
+                    saveState();
+                    updateUI();
+                    showNotification('Reward given to ' + result.totalAccounts + ' players!');
+                }
+            } catch (e) {
+                showNotification('Error giving rewards');
+            }
+        }
+        
+        // Admin broadcast message
+        async function sendBroadcast() {
+            const message = document.getElementById('broadcastMessage').value.trim();
+            const type = document.getElementById('broadcastType').value;
+            if (!message) { showNotification('Please enter a message!'); return; }
+            
+            await saveGlobalSettings('sendBroadcast', { message, type });
+            document.getElementById('broadcastMessage').value = '';
+            showNotification('Broadcast sent to all players!');
+        }
+        
+        // Load all accounts for admin
+        async function loadAllAccounts() {
+            if (!currentAccount?.isAdmin) return;
+            
+            try {
+                const response = await fetch('/api/accounts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'getAllAccounts',
+                        data: { adminUser: currentAccount.username }
+                    })
+                });
+                const result = await response.json();
+                
+                if (result.accounts) {
+                    renderAccountsList(result.accounts);
+                }
+            } catch (e) {
+                console.error('Error loading accounts:', e);
+            }
+        }
+        
+        function renderAccountsList(accounts) {
+            const list = document.getElementById('accountsList');
+            if (!list) return;
+            
+            list.innerHTML = accounts.map(acc => `
+                <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; margin: 5px 0; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong style="color: ${acc.isAdmin ? '#ec4899' : '#fff'}">${acc.username}</strong>
+                        ${acc.isAdmin ? '<span style="color: #ec4899; font-size: 12px; margin-left: 5px;">[ADMIN]</span>' : ''}
+                        <div style="font-size: 12px; color: #9ca3af;">
+                            💰 ${acc.stats?.credits || 0} | 🎯 ${acc.stats?.plays || 0} | 💵 $${(acc.stats?.cashBalance || 0).toFixed(2)}
+                        </div>
+                        <div style="font-size: 11px; color: #64748b;">
+                            IP: ${acc.ipAddress || 'unknown'} | Created: ${new Date(acc.createdAt).toLocaleDateString()}
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 5px;">
+                        <button class="dev-btn" style="background: rgba(59, 130, 246, 0.5); color: white; font-size: 12px;" onclick="editAccount('${acc.username}')">Edit</button>
+                        ${!acc.isAdmin ? `<button class="dev-btn delete" style="font-size: 12px;" onclick="deleteAccount('${acc.username}')">Delete</button>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        async function deleteAccount(username) {
+            if (!confirm('Delete account ' + username + '?')) return;
+            
+            try {
+                const response = await fetch('/api/accounts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'deleteAccount',
+                        data: { adminUser: currentAccount.username, username }
+                    })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showNotification('Account deleted!');
+                    loadAllAccounts();
+                }
+            } catch (e) {
+                showNotification('Error deleting account');
+            }
+        }
+        
+        async function editAccount(username) {
+            const credits = prompt('Enter new credits amount:');
+            if (credits === null) return;
+            
+            try {
+                const response = await fetch('/api/accounts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'updateAccount',
+                        data: { 
+                            adminUser: currentAccount.username, 
+                            username,
+                            updates: { credits: parseInt(credits) || 0 }
+                        }
+                    })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showNotification('Account updated!');
+                    loadAllAccounts();
+                }
+            } catch (e) {
+                showNotification('Error updating account');
+            }
+        }
+        async function createTask() {
+            const name = document.getElementById('taskName').value; const type = document.getElementById('taskType').value; const url = document.getElementById('taskUrl').value; const cooldown = parseInt(document.getElementById('taskCooldown').value) || 24; const credits = parseInt(document.getElementById('taskCredits').value) || 0; const plays = parseInt(document.getElementById('taskPlays').value) || 0; const cash = parseFloat(document.getElementById('taskCash').value) || 0; const htmlContent = document.getElementById('taskHtmlContent')?.value || '';
+            if (!name) { showNotification('Please enter task name!'); return; }
+            await saveGlobalSettings('createTask', { name, type, url, cooldown, reward: { credits, plays, cash }, htmlContent });
+            showNotification('Task created!');
+            document.getElementById('taskName').value = '';
+            document.getElementById('taskUrl').value = '';
+            document.getElementById('taskHtmlContent').value = '';
+        }
+        async function deleteTask(id) { await saveGlobalSettings('deleteTask', { id }); showNotification('Task deleted!'); }
+        function updateTasksList() { const list = document.getElementById('tasksList'); const tasks = globalSettings.customTasks || []; list.innerHTML = tasks.map(t => '<div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; margin: 5px 0; display: flex; justify-content: space-between; align-items: center;"><div><strong>' + t.name + '</strong><div style="font-size: 12px; color: #9ca3af;">+' + t.reward.credits + ' Credits, +' + t.reward.plays + ' Plays | ' + t.cooldown + 'h cooldown</div></div><button class="dev-btn delete" onclick="deleteTask(' + t.id + ')">Delete</button></div>').join(''); }
+        function devUpdateWithdrawalList() {
+            const list = document.getElementById('withdrawalsList'); const withdrawals = globalSettings.withdrawals || [];
+            list.innerHTML = withdrawals.length === 0 ? '<p style="color: #9ca3af;">No withdrawals yet</p>' : withdrawals.map(w => '<div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; margin: 5px 0;"><div style="display: flex; justify-content: space-between; align-items: center;"><div><strong>$' + w.amount.toFixed(2) + '</strong> via ' + w.method.toUpperCase() + '</div><span style="padding: 4px 8px; border-radius: 5px; font-size: 12px; background: ' + (w.status === 'approved' ? '#22c55e' : w.status === 'rejected' ? '#ef4444' : '#fbbf24') + ';">' + w.status + '</span></div><div style="font-size: 12px; color: #9ca3af; margin-top: 5px;">' + w.account + ' | User: ' + w.user + '</div>' + (w.status === 'pending' ? '<div style="margin-top: 10px;"><button class="dev-btn save" onclick="updateWithdrawal(' + w.id + ', \'approved\')">Approve</button> <button class="dev-btn delete" onclick="updateWithdrawal(' + w.id + ', \'rejected\')">Reject</button></div>' : '') + '</div>').join('');
+        }
+        async function updateWithdrawal(id, status) { await saveGlobalSettings('updateWithdrawalStatus', { id, status }); showNotification('Withdrawal ' + status + '!'); }
+        async function setMinWithdraw() { const min = parseFloat(document.getElementById('minWithdrawInput').value); if (!min || min < 0) { showNotification('Invalid value!'); return; } await saveGlobalSettings('setMinWithdraw', { min }); showNotification('Minimum withdraw set to $' + min.toFixed(2)); }
+        
+        // Error Reports
+        function updateErrorReportsList() {
+            const list = document.getElementById('errorReportsList');
+            if (!list) return;
+            const reports = globalSettings.errorReports || [];
+            list.innerHTML = reports.length === 0 ? '<p style="color: #9ca3af;">No errors reported</p>' : 
+                reports.map(e => '<div style="background: rgba(239,68,68,0.1); padding: 10px; border-radius: 8px; margin: 5px 0; border: 1px solid rgba(239,68,68,0.3);"><div style="font-size: 14px;">' + e.message + '</div><div style="font-size: 12px; color: #9ca3af; margin-top: 5px;">User: ' + e.user + ' | ' + new Date(e.timestamp).toLocaleString() + '</div></div>').join('');
+        }
+        
+        // Custom Withdraw Methods
+        async function createWithdrawMethod() {
+            const name = document.getElementById('withdrawMethodName').value.trim();
+            const icon = document.getElementById('withdrawMethodIcon').value.trim() || '💵';
+            if (!name) { showNotification('Enter method name!'); return; }
+            await saveGlobalSettings('createWithdrawMethod', { name, icon });
+            showNotification('Withdraw method added!');
+            document.getElementById('withdrawMethodName').value = '';
+            document.getElementById('withdrawMethodIcon').value = '';
+        }
+        async function deleteWithdrawMethod(id) { await saveGlobalSettings('deleteWithdrawMethod', { id }); showNotification('Method deleted!'); }
+        function updateWithdrawMethodsList() {
+            const list = document.getElementById('withdrawMethodsList');
+            if (!list) return;
+            const methods = globalSettings.customWithdrawMethods || [];
+            list.innerHTML = methods.length === 0 ? '<p style="color: #9ca3af;">No custom methods</p>' :
+                methods.map(m => '<div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; margin: 5px 0; display: flex; justify-content: space-between; align-items: center;"><span>' + m.icon + ' ' + m.name + '</span><button class="dev-btn delete" onclick="deleteWithdrawMethod(' + m.id + ')">Delete</button></div>').join('');
+        }
+        function renderWithdrawMethods() {
+            const select = document.getElementById('withdrawMethod');
+            if (!select) return;
+            const methods = globalSettings.customWithdrawMethods || [];
+            const customOptions = methods.map(m => '<option value="' + m.name + '">' + m.icon + ' ' + m.name + '</option>').join('');
+            select.innerHTML = '<option value="paypal">PayPal</option><option value="btc">Bitcoin</option><option value="eth">Ethereum</option>' + customOptions;
+        }
+
+        // ==================== LEVEL EDITOR WITH SELECTOR ====================
+        function initLevelEditor() {
+            const canvas = document.getElementById('levelEditorCanvas');
+            if (!canvas) return;
+            canvas.addEventListener('click', function(e) {
+                const rect = canvas.getBoundingClientRect(); const x = Math.round((e.clientX - rect.left) * 5); const y = e.clientY - rect.top;
+                editorObstacles.push({ type: 'spike', x, y: 340 });
+                renderEditorPreview();
+            });
+            canvas.addEventListener('contextmenu', function(e) {
+                e.preventDefault(); const rect = canvas.getBoundingClientRect(); const x = Math.round((e.clientX - rect.left) * 5); const y = e.clientY - rect.top;
+                editorObstacles.push({ type: 'coin', x, y });
+                renderEditorPreview();
+            });
+            canvas.addEventListener('dblclick', function(e) {
+                const rect = canvas.getBoundingClientRect(); const x = Math.round((e.clientX - rect.left) * 5); const y = e.clientY - rect.top;
+                editorObstacles.push({ type: 'portal', x, y: y + 45 });
+                renderEditorPreview();
+            });
+        }
+        function renderEditorPreview() {
+            const canvas = document.getElementById('levelEditorCanvas'); if (!canvas) return;
+            const existing = canvas.querySelectorAll('.editor-obstacle'); existing.forEach(el => el.remove());
+            editorObstacles.forEach((o, i) => {
+                const el = document.createElement('div'); el.className = 'editor-obstacle'; el.style.position = 'absolute'; el.style.left = (o.x / 5) + 'px';
+                if (o.type === 'spike') { el.style.bottom = '0'; el.style.width = '0'; el.style.height = '0'; el.style.borderLeft = '10px solid transparent'; el.style.borderRight = '10px solid transparent'; el.style.borderBottom = '30px solid #ef4444'; el.style.cursor = 'pointer'; }
+                else if (o.type === 'coin') { el.style.top = o.y + 'px'; el.style.width = '20px'; el.style.height = '20px'; el.style.background = '#fbbf24'; el.style.borderRadius = '50%'; }
+                else if (o.type === 'portal') { el.style.top = (o.y - 45) + 'px'; el.style.width = '15px'; el.style.height = '90px'; el.style.background = '#ec4899'; el.style.borderRadius = '5px'; }
+                el.onclick = function(e) { e.stopPropagation(); editorObstacles.splice(i, 1); renderEditorPreview(); };
+                canvas.appendChild(el);
+            });
+        }
+        function updateLevelSelect() {
+            const select = document.getElementById('levelSelect');
+            if (!select) return;
+            const customLevels = globalSettings.customLevels || {};
+            select.innerHTML = '<option value="">-- New Level --</option>' + Object.keys(customLevels).map(name => '<option value="' + name + '">' + name + '</option>').join('');
+        }
+        function loadLevelForEdit() {
+            const select = document.getElementById('levelSelect');
+            const name = select.value;
+            if (!name) {
+                currentEditingLevel = null;
+                editorObstacles = [];
+                document.getElementById('levelName').value = '';
+                document.getElementById('levelDistance').value = '';
+                renderEditorPreview();
+                return;
+            }
+            const level = globalSettings.customLevels[name];
+            if (level) {
+                currentEditingLevel = name;
+                editorObstacles = [...level.obstacles];
+                document.getElementById('levelName').value = name;
+                document.getElementById('levelDistance').value = level.distance || 500;
+                renderEditorPreview();
+            }
+        }
+        function clearLevelEditor() { editorObstacles = []; renderEditorPreview(); }
+        async function saveCustomLevel() {
+            const name = document.getElementById('levelName').value.trim(); const distance = parseInt(document.getElementById('levelDistance').value) || 500;
+            if (!name) { showNotification('Please enter a level name!'); return; }
+            if (editorObstacles.length === 0) { showNotification('Please add some obstacles!'); return; }
+            await saveGlobalSettings('saveCustomLevel', { levelName: name, obstacles: editorObstacles, distance });
+            showNotification('Level saved!');
+            updateLevelSelect();
+            updateCustomLevelsList();
+            currentEditingLevel = name;
+        }
+        async function deleteCurrentLevel() {
+            const name = currentEditingLevel || document.getElementById('levelName').value.trim();
+            if (!name) { showNotification('No level selected!'); return; }
+            await saveGlobalSettings('deleteCustomLevel', { levelName: name });
+            showNotification('Level deleted!');
+            currentEditingLevel = null;
+            editorObstacles = [];
+            document.getElementById('levelName').value = '';
+            document.getElementById('levelDistance').value = '';
+            renderEditorPreview();
+            updateLevelSelect();
+            updateCustomLevelsList();
+        }
+        function updateCustomLevelsList() {
+            const list = document.getElementById('customLevelsList'); if (!list) return;
+            const levels = globalSettings.customLevels || {};
+            list.innerHTML = Object.entries(levels).map(([name, data]) => '<div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; margin: 5px 0; display: flex; justify-content: space-between; align-items: center;"><div><strong>' + name + '</strong><span style="color: #9ca3af; margin-left: 10px;">' + data.distance + 'm | ' + data.obstacles.length + ' objects</span></div><div><button class="dev-btn" style="background: rgba(59, 130, 246, 0.5); color: white;" onclick="editLevelByName(\'' + name + '\')">Edit</button> <button class="dev-btn delete" onclick="deleteLevelByName(\'' + name + '\')">Delete</button></div></div>').join('');
+        }
+        async function editLevelByName(name) {
+            document.getElementById('levelSelect').value = name;
+            loadLevelForEdit();
+        }
+        async function deleteLevelByName(name) {
+            await saveGlobalSettings('deleteCustomLevel', { levelName: name });
+            showNotification('Level deleted!');
+            updateLevelSelect();
+            updateCustomLevelsList();
+        }
+
+        // Initialize
+        window.onload = init;
+    </script>
+</body>
+</html>
