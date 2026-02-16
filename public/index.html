@@ -234,6 +234,10 @@
                     <div class="game-card-header"><div class="game-icon">📦</div><div><h3>Geometry Dash</h3><p>Jump through obstacles!</p></div></div>
                     <div class="game-card-footer"><span>🏆 Best: <span id="geometryBest">0</span>m</span><span class="badge badge-cyan">4 Levels</span></div>
                 </div>
+                <div class="game-card" style="border-color: rgba(236, 72, 153, 0.3);" onclick="showPage('realGeometryLobby')">
+                    <div class="game-card-header"><div class="game-icon" style="background: linear-gradient(135deg, #ec4899, #f43f5e);">🔺</div><div><h3 style="color: #ec4899;">Real Geometry Dash</h3><p>Play online & earn credits!</p></div></div>
+                    <div class="game-card-footer"><span>🏆 +10 Credits per level</span><span class="badge" style="background: rgba(236, 72, 153, 0.2); color: #ec4899; border: 1px solid rgba(236, 72, 153, 0.3);">ONLINE</span></div>
+                </div>
             </div>
             <div class="stats-grid">
                 <div class="stat-card"><div class="icon">💰</div><div class="value" id="totalCredits">100</div><div class="label">Credits</div></div>
@@ -267,6 +271,42 @@
                     <div class="progress-text"><span id="progressPercent">0%</span><span id="progressDistance">0m</span><span id="coinCount">🪙 0</span></div>
                 </div>
                 <canvas id="geometryCanvas" width="800" height="400"></canvas>
+            </div>
+        </div>
+        <div class="page" id="realGeometryLobby">
+            <div class="section-title"><h2 style="color: #ec4899;">🔺 Real Geometry Dash</h2><p>Play Geometry Dash online! Cost: 1 Play | Reward: +10 Credits</p></div>
+            <div style="max-width: 900px; margin: 0 auto;">
+                <div style="background: rgba(236, 72, 153, 0.1); border: 1px solid rgba(236, 72, 153, 0.3); border-radius: 20px; padding: 20px; margin-bottom: 20px;">
+                    <h3 style="color: #ec4899; margin-bottom: 15px;">🎮 How to Play</h3>
+                    <ol style="color: #9ca3af; margin-left: 20px; line-height: 1.8;">
+                        <li>Click "Start Game (1 Play)" to load the game</li>
+                        <li>Play and complete any level</li>
+                        <li>Click "I Completed a Level!" to claim +10 credits</li>
+                    </ol>
+                    <div style="background: rgba(234, 179, 8, 0.1); border-radius: 10px; padding: 15px; margin-top: 15px; text-align: center;">
+                        <span style="color: #fbbf24; font-size: 16px;">🎯 Cost: 1 Play | 🏆 Reward: +10 Credits per completed level</span>
+                    </div>
+                </div>
+                <div style="background: rgba(0,0,0,0.3); border-radius: 20px; overflow: hidden; margin-bottom: 20px;">
+                    <div id="geometryGameContainer" style="height: 500px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #1a1a2e, #0f3460);">
+                        <div id="geometryGameInfo" style="text-align: center;">
+                            <div style="font-size: 60px; margin-bottom: 20px;">🔺</div>
+                            <div style="color: #9ca3af; margin-bottom: 10px;">Your Plays: <span id="geometryPlaysDisplay" style="color: #22c55e; font-weight: bold;">10</span></div>
+                            <button id="geometryStartBtn" class="play-btn" style="background: linear-gradient(135deg, #ec4899, #f43f5e); padding: 20px 40px; font-size: 20px;" onclick="startRealGeometryGame()">🎮 Start Game (1 Play)</button>
+                        </div>
+                        <iframe id="realGeometryIframe" src="" style="width: 100%; height: 500px; border: none; display: none;" allowfullscreen></iframe>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                    <button id="geometryCompleteBtn" class="play-btn" style="background: linear-gradient(135deg, #22c55e, #10b981); display: none;" onclick="claimRealGeometryCredits()">🏆 I Completed a Level! (+10 Credits)</button>
+                    <button id="geometryQuitBtn" class="play-btn" style="background: rgba(239, 68, 68, 0.5); display: none;" onclick="quitRealGeometryGame()">❌ Quit Game</button>
+                </div>
+                <div style="margin-top: 20px; text-align: center;">
+                    <div style="background: rgba(168, 85, 247, 0.2); border-radius: 15px; padding: 15px; display: inline-block;">
+                        <span style="color: #9ca3af;">Levels Completed:</span>
+                        <span style="color: #a855f7; font-size: 24px; font-weight: bold; margin-left: 10px;" id="geometryLevelsCompleted">0</span>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="page" id="tasksPage">
@@ -1494,11 +1534,17 @@
             if (code === 'ANNA') { showEmojiRain('🌸💖💕🌹🥀'); showCustomMessage('I have a crush on you 💕\nYou make my heart flutter!'); gameState.credits += 50; saveState(); updateUI(); return; }
             if (code === 'VALENTINE') { const uses = gameState.usedPromoCodes[code] || 0; if (uses >= 1) { showNotification('Code already used!'); return; } if (!gameState.ownedSkins.geometry.includes('heart')) gameState.ownedSkins.geometry.push('heart'); gameState.usedPromoCodes[code] = 1; saveState(); updateUI(); showNotification('💕 Heart skin unlocked!'); return; }
             if (globalSettings.customPromoCodes && globalSettings.customPromoCodes[code]) {
-                const promo = globalSettings.customPromoCodes[code]; const userUses = gameState.usedPromoCodes[code] || 0;
-                if (promo.maxUses > 0 && userUses >= promo.maxUses) { showNotification('Code usage limit reached!'); return; }
+                const promo = globalSettings.customPromoCodes[code]; 
+                const userUses = gameState.usedPromoCodes[code] || 0;
+                // Fix: use max_uses (snake_case) as stored in database
+                const maxUses = promo.max_uses || promo.maxUses || 0;
+                if (maxUses > 0 && userUses >= maxUses) { showNotification('Code usage limit reached! (' + userUses + '/' + maxUses + ')'); return; }
                 gameState.credits += promo.credits || 0; gameState.plays += promo.plays || 0; gameState.cashBalance += promo.cash || 0; gameState.usedPromoCodes[code] = userUses + 1;
-                if (promo.eventType === 'emoji' && promo.emoji) showEmojiRain(promo.emoji); else if (promo.eventType === 'text' && promo.message) showCustomMessage(promo.message);
-                saveState(); updateUI(); showNotification('Code redeemed! +' + (promo.credits || 0) + ' Credits, +' + (promo.plays || 0) + ' Plays'); return;
+                // Fix: use event_type (snake_case) as stored in database
+                const eventType = promo.event_type || promo.eventType || 'none';
+                if (eventType === 'emoji' && promo.emoji) showEmojiRain(promo.emoji); 
+                else if (eventType === 'text' && promo.message) showCustomMessage(promo.message);
+                saveState(); updateUI(); showNotification('Code redeemed! +' + (promo.credits || 0) + ' Credits, +' + (promo.plays || 0) + ' Plays (Use ' + (userUses + 1) + '/' + (maxUses > 0 ? maxUses : '∞') + ')'); return;
             }
             showNotification('Invalid promo code!');
         }
@@ -1847,6 +1893,67 @@
             showNotification('Level deleted!');
             updateLevelSelect();
             updateCustomLevelsList();
+        }
+
+        // ==================== REAL GEOMETRY DASH ====================
+        let geometryLevelsCompleted = 0;
+        let realGeometryGameLoaded = false;
+        
+        function startRealGeometryGame() {
+            // Check if user has plays
+            if (gameState.plays <= 0) {
+                showNotification('No plays left! Get more plays from tasks.');
+                return;
+            }
+            
+            // Deduct 1 play
+            gameState.plays--;
+            saveState();
+            updateUI();
+            
+            // Show iframe, hide info
+            document.getElementById('geometryGameInfo').style.display = 'none';
+            const iframe = document.getElementById('realGeometryIframe');
+            iframe.style.display = 'block';
+            
+            // Use Geometry Dash from CrazyGames
+            iframe.src = 'https://www.crazygames.com/embed/geometry-dash';
+            
+            document.getElementById('geometryCompleteBtn').style.display = 'inline-block';
+            document.getElementById('geometryQuitBtn').style.display = 'inline-block';
+            document.getElementById('geometryStartBtn').disabled = true;
+            
+            realGeometryGameLoaded = true;
+            showNotification('Game loaded! Complete a level to earn +10 credits!');
+        }
+        
+        function claimRealGeometryCredits() {
+            if (!realGeometryGameLoaded) {
+                showNotification('Start the game first!');
+                return;
+            }
+            
+            // Award credits
+            gameState.credits += 10;
+            geometryLevelsCompleted++;
+            saveState();
+            updateUI();
+            
+            document.getElementById('geometryLevelsCompleted').textContent = geometryLevelsCompleted;
+            showNotification('🏆 +10 Credits! Great job!');
+            playWinSound();
+        }
+        
+        function quitRealGeometryGame() {
+            realGeometryGameLoaded = false;
+            
+            document.getElementById('geometryGameInfo').style.display = 'block';
+            document.getElementById('realGeometryIframe').style.display = 'none';
+            document.getElementById('realGeometryIframe').src = '';
+            document.getElementById('geometryCompleteBtn').style.display = 'none';
+            document.getElementById('geometryQuitBtn').style.display = 'none';
+            document.getElementById('geometryStartBtn').disabled = false;
+            document.getElementById('geometryPlaysDisplay').textContent = gameState.plays;
         }
 
         // Initialize
