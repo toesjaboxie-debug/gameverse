@@ -235,8 +235,12 @@
                     <div class="game-card-footer"><span>🏆 Best: <span id="geometryBest">0</span>m</span><span class="badge badge-cyan">4 Levels</span></div>
                 </div>
                 <div class="game-card" style="border-color: rgba(236, 72, 153, 0.3);" onclick="showPage('realGeometryLobby')">
-                    <div class="game-card-header"><div class="game-icon" style="background: linear-gradient(135deg, #ec4899, #f43f5e);">🔺</div><div><h3 style="color: #ec4899;">Real Geometry Dash</h3><p>Play online & earn credits!</p></div></div>
-                    <div class="game-card-footer"><span>🏆 +10 Credits per level</span><span class="badge" style="background: rgba(236, 72, 153, 0.2); color: #ec4899; border: 1px solid rgba(236, 72, 153, 0.3);">ONLINE</span></div>
+                    <div class="game-card-header"><div class="game-icon" style="background: linear-gradient(135deg, #ec4899, #f43f5e);">🔺</div><div><h3 style="color: #ec4899;">Geometry Dash Online</h3><p>Play for fun!</p></div></div>
+                    <div class="game-card-footer"><span>🎮 Free to play</span><span class="badge" style="background: rgba(236, 72, 153, 0.2); color: #ec4899; border: 1px solid rgba(236, 72, 153, 0.3);">FOR FUN</span></div>
+                </div>
+                <div class="game-card" style="border-color: rgba(34, 197, 94, 0.3);" onclick="showPage('obbyLobby')">
+                    <div class="game-card-header"><div class="game-icon" style="background: linear-gradient(135deg, #22c55e, #10b981);">🏃</div><div><h3 style="color: #22c55e;">3D Obby</h3><p>100 stages Roblox-style!</p></div></div>
+                    <div class="game-card-footer"><span>🏆 +2 Credits per stage</span><span class="badge" style="background: rgba(34, 197, 94, 0.2); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.3);">100 STAGES</span></div>
                 </div>
             </div>
             <div class="stats-grid">
@@ -274,38 +278,53 @@
             </div>
         </div>
         <div class="page" id="realGeometryLobby">
-            <div class="section-title"><h2 style="color: #ec4899;">🔺 Real Geometry Dash</h2><p>Play Geometry Dash online! Cost: 1 Play | Reward: +10 Credits</p></div>
+            <div class="section-title"><h2 style="color: #ec4899;">🔺 Geometry Dash Online</h2><p>Play Geometry Dash for fun - FREE!</p></div>
             <div style="max-width: 900px; margin: 0 auto;">
-                <div style="background: rgba(236, 72, 153, 0.1); border: 1px solid rgba(236, 72, 153, 0.3); border-radius: 20px; padding: 20px; margin-bottom: 20px;">
-                    <h3 style="color: #ec4899; margin-bottom: 15px;">🎮 How to Play</h3>
-                    <ol style="color: #9ca3af; margin-left: 20px; line-height: 1.8;">
-                        <li>Click "Start Game (1 Play)" to load the game</li>
-                        <li>Play and complete any level</li>
-                        <li>Click "I Completed a Level!" to claim +10 credits</li>
-                    </ol>
-                    <div style="background: rgba(234, 179, 8, 0.1); border-radius: 10px; padding: 15px; margin-top: 15px; text-align: center;">
-                        <span style="color: #fbbf24; font-size: 16px;">🎯 Cost: 1 Play | 🏆 Reward: +10 Credits per completed level</span>
-                    </div>
+                <div style="background: rgba(236, 72, 153, 0.1); border: 1px solid rgba(236, 72, 153, 0.3); border-radius: 20px; padding: 20px; margin-bottom: 20px; text-align: center;">
+                    <h3 style="color: #ec4899; margin-bottom: 10px;">🎮 Free to Play - Just for Fun!</h3>
+                    <p style="color: #9ca3af;">Enjoy playing Geometry Dash online. No cost, no rewards - just pure fun!</p>
                 </div>
                 <div style="background: rgba(0,0,0,0.3); border-radius: 20px; overflow: hidden; margin-bottom: 20px;">
-                    <div id="geometryGameContainer" style="height: 500px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #1a1a2e, #0f3460);">
+                    <div style="height: 500px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #1a1a2e, #0f3460);">
                         <div id="geometryGameInfo" style="text-align: center;">
                             <div style="font-size: 60px; margin-bottom: 20px;">🔺</div>
-                            <div style="color: #9ca3af; margin-bottom: 10px;">Your Plays: <span id="geometryPlaysDisplay" style="color: #22c55e; font-weight: bold;">10</span></div>
-                            <button id="geometryStartBtn" class="play-btn" style="background: linear-gradient(135deg, #ec4899, #f43f5e); padding: 20px 40px; font-size: 20px;" onclick="startRealGeometryGame()">🎮 Start Game (1 Play)</button>
+                            <button id="geometryStartBtn" class="play-btn" style="background: linear-gradient(135deg, #ec4899, #f43f5e); padding: 20px 40px; font-size: 20px;" onclick="startRealGeometryGame()">🎮 Play Geometry Dash</button>
                         </div>
                         <iframe id="realGeometryIframe" src="" style="width: 100%; height: 500px; border: none; display: none;" allowfullscreen></iframe>
                     </div>
                 </div>
                 <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-                    <button id="geometryCompleteBtn" class="play-btn" style="background: linear-gradient(135deg, #22c55e, #10b981); display: none;" onclick="claimRealGeometryCredits()">🏆 I Completed a Level! (+10 Credits)</button>
                     <button id="geometryQuitBtn" class="play-btn" style="background: rgba(239, 68, 68, 0.5); display: none;" onclick="quitRealGeometryGame()">❌ Quit Game</button>
                 </div>
-                <div style="margin-top: 20px; text-align: center;">
-                    <div style="background: rgba(168, 85, 247, 0.2); border-radius: 15px; padding: 15px; display: inline-block;">
-                        <span style="color: #9ca3af;">Levels Completed:</span>
-                        <span style="color: #a855f7; font-size: 24px; font-weight: bold; margin-left: 10px;" id="geometryLevelsCompleted">0</span>
+            </div>
+        </div>
+        <div class="page" id="obbyLobby">
+            <div class="section-title"><h2 style="color: #22c55e;">🏃 3D Obby</h2><p>Complete 100 stages with your Roblox character! Cost: 1 Play | Reward: +2 Credits per stage</p></div>
+            <div style="max-width: 900px; margin: 0 auto;">
+                <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 20px; padding: 20px; margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                        <div>
+                            <h3 style="color: #22c55e; margin-bottom: 5px;">Stage Progress</h3>
+                            <div style="font-size: 32px; font-weight: bold; color: #22c55e;" id="obbyStageDisplay">Stage 1 / 100</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="color: #9ca3af;">Your Plays: <span id="obbyPlaysDisplay" style="color: #22c55e; font-weight: bold;">10</span></div>
+                            <div style="color: #9ca3af;">Stages Completed: <span id="obbyCompletedDisplay" style="color: #a855f7; font-weight: bold;">0</span></div>
+                        </div>
                     </div>
+                    <div style="margin-top: 15px; background: rgba(0,0,0,0.3); border-radius: 10px; height: 20px; overflow: hidden;">
+                        <div id="obbyProgressBar" style="height: 100%; background: linear-gradient(90deg, #22c55e, #10b981); width: 1%; transition: width 0.3s;"></div>
+                    </div>
+                </div>
+                <div style="background: rgba(0,0,0,0.3); border-radius: 20px; overflow: hidden; margin-bottom: 20px;">
+                    <canvas id="obbyCanvas" width="800" height="450" style="display: block; margin: 0 auto;"></canvas>
+                </div>
+                <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                    <button id="obbyStartBtn" class="play-btn" style="background: linear-gradient(135deg, #22c55e, #10b981); padding: 15px 30px; font-size: 18px;" onclick="startObbyGame()">🎮 Start Stage (1 Play)</button>
+                    <button id="obbyRestartBtn" class="play-btn" style="background: rgba(234, 179, 8, 0.5); display: none;" onclick="retryObbyStage()">🔄 Retry Stage</button>
+                </div>
+                <div style="margin-top: 20px; text-align: center;">
+                    <div style="color: #9ca3af; font-size: 14px;">Controls: WASD or Arrow Keys to move | Space to jump</div>
                 </div>
             </div>
         </div>
@@ -1895,23 +1914,11 @@
             updateCustomLevelsList();
         }
 
-        // ==================== REAL GEOMETRY DASH ====================
-        let geometryLevelsCompleted = 0;
+        // ==================== REAL GEOMETRY DASH (FREE FOR FUN) ====================
         let realGeometryGameLoaded = false;
         
         function startRealGeometryGame() {
-            // Check if user has plays
-            if (gameState.plays <= 0) {
-                showNotification('No plays left! Get more plays from tasks.');
-                return;
-            }
-            
-            // Deduct 1 play
-            gameState.plays--;
-            saveState();
-            updateUI();
-            
-            // Show iframe, hide info
+            // Show iframe, hide info - FREE TO PLAY
             document.getElementById('geometryGameInfo').style.display = 'none';
             const iframe = document.getElementById('realGeometryIframe');
             iframe.style.display = 'block';
@@ -1919,29 +1926,11 @@
             // Use Geometry Dash from CrazyGames
             iframe.src = 'https://www.crazygames.com/embed/geometry-dash';
             
-            document.getElementById('geometryCompleteBtn').style.display = 'inline-block';
             document.getElementById('geometryQuitBtn').style.display = 'inline-block';
-            document.getElementById('geometryStartBtn').disabled = true;
+            document.getElementById('geometryStartBtn').style.display = 'none';
             
             realGeometryGameLoaded = true;
-            showNotification('Game loaded! Complete a level to earn +10 credits!');
-        }
-        
-        function claimRealGeometryCredits() {
-            if (!realGeometryGameLoaded) {
-                showNotification('Start the game first!');
-                return;
-            }
-            
-            // Award credits
-            gameState.credits += 10;
-            geometryLevelsCompleted++;
-            saveState();
-            updateUI();
-            
-            document.getElementById('geometryLevelsCompleted').textContent = geometryLevelsCompleted;
-            showNotification('🏆 +10 Credits! Great job!');
-            playWinSound();
+            showNotification('Game loaded! Have fun playing!');
         }
         
         function quitRealGeometryGame() {
@@ -1950,10 +1939,271 @@
             document.getElementById('geometryGameInfo').style.display = 'block';
             document.getElementById('realGeometryIframe').style.display = 'none';
             document.getElementById('realGeometryIframe').src = '';
-            document.getElementById('geometryCompleteBtn').style.display = 'none';
             document.getElementById('geometryQuitBtn').style.display = 'none';
-            document.getElementById('geometryStartBtn').disabled = false;
-            document.getElementById('geometryPlaysDisplay').textContent = gameState.plays;
+            document.getElementById('geometryStartBtn').style.display = 'inline-block';
+        }
+
+        // ==================== 3D OBBY GAME ====================
+        let obbyGame = null;
+        let obbyCurrentStage = 1;
+        let obbyStagesCompleted = 0;
+        let obbyKeys = {};
+        
+        function startObbyGame() {
+            // Check plays
+            if (gameState.plays <= 0) {
+                showNotification('No plays left! Get more from tasks.');
+                return;
+            }
+            
+            // Deduct 1 play
+            gameState.plays--;
+            saveState();
+            updateUI();
+            document.getElementById('obbyPlaysDisplay').textContent = gameState.plays;
+            
+            // Start game
+            const canvas = document.getElementById('obbyCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            document.getElementById('obbyStartBtn').style.display = 'none';
+            document.getElementById('obbyRestartBtn').style.display = 'inline-block';
+            
+            // Generate stage based on current stage number (harder each stage)
+            const difficulty = Math.min(obbyCurrentStage / 10, 10); // Max difficulty at stage 100
+            const platforms = generateObbyStage(obbyCurrentStage);
+            
+            obbyGame = {
+                player: { x: 50, y: 350, z: 0, vx: 0, vy: 0, vz: 0, onGround: false },
+                platforms: platforms,
+                goal: { x: 700, y: 300, width: 60, height: 80 },
+                running: true,
+                won: false,
+                stage: obbyCurrentStage,
+                cameraX: 0
+            };
+            
+            // Key handlers
+            document.onkeydown = (e) => {
+                obbyKeys[e.code] = true;
+                if (e.code === 'Space') e.preventDefault();
+            };
+            document.onkeyup = (e) => { obbyKeys[e.code] = false; };
+            
+            function loop() {
+                if (!obbyGame.running) return;
+                
+                const g = obbyGame;
+                const speed = 3 + (obbyCurrentStage * 0.02); // Speed increases with stage
+                const jumpPower = -10 - (obbyCurrentStage * 0.05);
+                
+                // Movement
+                if (obbyKeys['KeyA'] || obbyKeys['ArrowLeft']) g.player.vx = -speed;
+                else if (obbyKeys['KeyD'] || obbyKeys['ArrowRight']) g.player.vx = speed;
+                else g.player.vx *= 0.8;
+                
+                if (obbyKeys['KeyW'] || obbyKeys['ArrowUp']) g.player.vz = -speed * 0.5;
+                else if (obbyKeys['KeyS'] || obbyKeys['ArrowDown']) g.player.vz = speed * 0.5;
+                else g.player.vz *= 0.8;
+                
+                if ((obbyKeys['Space'] || obbyKeys['KeyW']) && g.player.onGround) {
+                    g.player.vy = jumpPower;
+                    g.player.onGround = false;
+                    playJumpSound();
+                }
+                
+                // Physics
+                g.player.vy += 0.5; // Gravity
+                g.player.x += g.player.vx;
+                g.player.y += g.player.vy;
+                g.player.z += g.player.vz;
+                
+                // Boundaries
+                if (g.player.x < 20) g.player.x = 20;
+                if (g.player.x > 780) g.player.x = 780;
+                if (g.player.z < -100) g.player.z = -100;
+                if (g.player.z > 100) g.player.z = 100;
+                
+                // Platform collision
+                g.player.onGround = false;
+                for (const plat of g.platforms) {
+                    if (g.player.x > plat.x && g.player.x < plat.x + plat.width &&
+                        g.player.z > plat.z - 30 && g.player.z < plat.z + 30) {
+                        if (g.player.y > plat.y - 25 && g.player.y < plat.y + 10 && g.player.vy > 0) {
+                            g.player.y = plat.y - 20;
+                            g.player.vy = 0;
+                            g.player.onGround = true;
+                        }
+                    }
+                }
+                
+                // Fall death
+                if (g.player.y > 500) {
+                    g.running = false;
+                    playDeathSound();
+                    showNotification('💀 You fell! Try again.');
+                    obbyGame = null;
+                    document.getElementById('obbyStartBtn').style.display = 'inline-block';
+                    document.getElementById('obbyRestartBtn').style.display = 'none';
+                    return;
+                }
+                
+                // Check goal
+                if (g.player.x > g.goal.x && g.player.x < g.goal.x + g.goal.width &&
+                    g.player.y > g.goal.y - 40 && g.player.y < g.goal.y + g.goal.height) {
+                    g.won = true;
+                    g.running = false;
+                    
+                    // Award credits
+                    gameState.credits += 2;
+                    obbyStagesCompleted++;
+                    obbyCurrentStage++;
+                    saveState();
+                    updateUI();
+                    
+                    playWinSound();
+                    showNotification('🏆 Stage ' + g.stage + ' Complete! +2 Credits!');
+                    
+                    document.getElementById('obbyStageDisplay').textContent = 'Stage ' + obbyCurrentStage + ' / 100';
+                    document.getElementById('obbyCompletedDisplay').textContent = obbyStagesCompleted;
+                    document.getElementById('obbyProgressBar').style.width = obbyCurrentStage + '%';
+                    document.getElementById('obbyStartBtn').style.display = 'inline-block';
+                    document.getElementById('obbyRestartBtn').style.display = 'none';
+                    return;
+                }
+                
+                // Draw - 3D-ish perspective
+                ctx.fillStyle = '#1a1a2e';
+                ctx.fillRect(0, 0, 800, 450);
+                
+                // Grid floor
+                ctx.strokeStyle = 'rgba(34, 197, 94, 0.1)';
+                for (let i = 0; i < 20; i++) {
+                    ctx.beginPath();
+                    ctx.moveTo(i * 40, 400);
+                    ctx.lineTo(i * 40 - 100, 450);
+                    ctx.stroke();
+                }
+                
+                // Platforms (3D effect based on z position)
+                const sortedPlatforms = [...g.platforms].sort((a, b) => a.z - b.z);
+                for (const plat of sortedPlatforms) {
+                    const scale = 1 + (plat.z / 200);
+                    const px = plat.x - (plat.z * 0.3);
+                    const py = plat.y + (plat.z * 0.2);
+                    const pw = plat.width * scale;
+                    const ph = 20 * scale;
+                    
+                    // Platform shadow
+                    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                    ctx.fillRect(px + 5, py + 5, pw, ph);
+                    
+                    // Platform top
+                    ctx.fillStyle = plat.color || '#22c55e';
+                    ctx.fillRect(px, py, pw, ph);
+                    
+                    // Platform side
+                    ctx.fillStyle = plat.sideColor || '#16a34a';
+                    ctx.fillRect(px, py + ph, pw, 10 * scale);
+                }
+                
+                // Goal (flag)
+                ctx.fillStyle = '#fbbf24';
+                ctx.fillRect(g.goal.x, g.goal.y, 10, g.goal.height);
+                ctx.fillStyle = '#ef4444';
+                ctx.beginPath();
+                ctx.moveTo(g.goal.x + 10, g.goal.y);
+                ctx.lineTo(g.goal.x + 50, g.goal.y + 20);
+                ctx.lineTo(g.goal.x + 10, g.goal.y + 40);
+                ctx.fill();
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 14px Arial';
+                ctx.fillText('🏁', g.goal.x + 20, g.goal.y + 28);
+                
+                // Player (Roblox-style character)
+                const playerScale = 1 + (g.player.z / 200);
+                const px = g.player.x - (g.player.z * 0.3);
+                const py = g.player.y + (g.player.z * 0.2);
+                
+                // Body
+                ctx.fillStyle = '#3b82f6';
+                ctx.fillRect(px - 12 * playerScale, py - 30 * playerScale, 24 * playerScale, 30 * playerScale);
+                // Head
+                ctx.fillStyle = '#fcd34d';
+                ctx.fillRect(px - 10 * playerScale, py - 50 * playerScale, 20 * playerScale, 20 * playerScale);
+                // Eyes
+                ctx.fillStyle = '#000';
+                ctx.fillRect(px - 6 * playerScale, py - 45 * playerScale, 4 * playerScale, 4 * playerScale);
+                ctx.fillRect(px + 2 * playerScale, py - 45 * playerScale, 4 * playerScale, 4 * playerScale);
+                // Smile
+                ctx.fillRect(px - 4 * playerScale, py - 38 * playerScale, 8 * playerScale, 2 * playerScale);
+                // Legs
+                ctx.fillStyle = '#1e3a5f';
+                ctx.fillRect(px - 10 * playerScale, py, 8 * playerScale, 15 * playerScale);
+                ctx.fillRect(px + 2 * playerScale, py, 8 * playerScale, 15 * playerScale);
+                
+                // Stage indicator
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 24px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Stage ' + g.stage + ' / 100', 400, 35);
+                ctx.font = '14px Arial';
+                ctx.fillStyle = '#9ca3af';
+                ctx.fillText('Reach the 🏁 to complete!', 400, 55);
+                
+                requestAnimationFrame(loop);
+            }
+            loop();
+        }
+        
+        function generateObbyStage(stageNum) {
+            const platforms = [];
+            const difficulty = Math.min(stageNum / 20, 5); // 0 to 5 difficulty
+            
+            // Starting platform
+            platforms.push({ x: 0, y: 380, z: 0, width: 100, height: 20, color: '#22c55e', sideColor: '#16a34a' });
+            
+            let x = 120;
+            const numPlatforms = 5 + Math.floor(stageNum / 10); // More platforms = harder
+            
+            for (let i = 0; i < numPlatforms; i++) {
+                const gap = 60 + Math.random() * (40 + difficulty * 20); // Bigger gaps at higher stages
+                const width = Math.max(40, 80 - difficulty * 5); // Smaller platforms at higher stages
+                const zVar = (Math.random() - 0.5) * 60 * difficulty; // Z variation for 3D movement
+                const yVar = Math.random() * -50 * difficulty; // Height variation
+                
+                x += gap;
+                
+                // Random platform colors
+                const colors = [
+                    { color: '#22c55e', sideColor: '#16a34a' },
+                    { color: '#3b82f6', sideColor: '#1d4ed8' },
+                    { color: '#a855f7', sideColor: '#7c3aed' },
+                    { color: '#f97316', sideColor: '#ea580c' },
+                    { color: '#ec4899', sideColor: '#db2777' }
+                ];
+                const colorChoice = colors[Math.floor(Math.random() * colors.length)];
+                
+                platforms.push({
+                    x: x,
+                    y: 350 + yVar,
+                    z: zVar,
+                    width: width,
+                    height: 20,
+                    ...colorChoice
+                });
+                
+                x += width;
+            }
+            
+            // Goal platform
+            platforms.push({ x: x + 50, y: 300, z: 0, width: 80, height: 20, color: '#fbbf24', sideColor: '#f59e0b' });
+            
+            return platforms;
+        }
+        
+        function retryObbyStage() {
+            startObbyGame();
         }
 
         // Initialize
