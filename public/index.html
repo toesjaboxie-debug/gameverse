@@ -324,7 +324,7 @@
                     <button id="obbyRestartBtn" class="play-btn" style="background: rgba(234, 179, 8, 0.5); display: none;" onclick="retryObbyStage()">🔄 Retry Stage</button>
                 </div>
                 <div style="margin-top: 20px; text-align: center;">
-                    <div style="color: #9ca3af; font-size: 14px;">Controls: WASD or Arrow Keys to move | Space to jump</div>
+                    <div style="color: #9ca3af; font-size: 14px;">🎮 Controls: WASD to move | Space to jump | 🖱️ Drag mouse to rotate camera | Scroll to zoom</div>
                 </div>
             </div>
         </div>
@@ -1943,11 +1943,29 @@
             document.getElementById('geometryStartBtn').style.display = 'inline-block';
         }
 
-        // ==================== 3D OBBY GAME ====================
+        // ==================== TRUE 3D OBBY GAME ====================
         let obbyGame = null;
         let obbyCurrentStage = 1;
         let obbyStagesCompleted = 0;
         let obbyKeys = {};
+        let obbyMouse = { x: 0, y: 0, down: false, lastX: 0, lastY: 0 };
+        let obbyCamera = { rotX: -0.3, rotY: 0, dist: 400, targetRotY: 0 };
+        
+        // 3D Math helpers
+        function rotateX(p, angle) {
+            const cos = Math.cos(angle), sin = Math.sin(angle);
+            return { x: p.x, y: p.y * cos - p.z * sin, z: p.y * sin + p.z * cos };
+        }
+        function rotateY(p, angle) {
+            const cos = Math.cos(angle), sin = Math.sin(angle);
+            return { x: p.x * cos + p.z * sin, y: p.y, z: -p.x * sin + p.z * cos };
+        }
+        function project(p, cx, cy, fov, dist) {
+            const z = p.z + dist;
+            if (z <= 10) return null;
+            const scale = fov / z;
+            return { x: cx + p.x * scale, y: cy + p.y * scale, scale: scale };
+        }
         
         function startObbyGame() {
             // Check plays
@@ -1970,67 +1988,135 @@
             document.getElementById('obbyRestartBtn').style.display = 'inline-block';
             
             // Generate stage based on current stage number (harder each stage)
-            const difficulty = Math.min(obbyCurrentStage / 10, 10); // Max difficulty at stage 100
             const platforms = generateObbyStage(obbyCurrentStage);
+            const lastPlat = platforms[platforms.length - 1];
+            
+            // Reset camera
+            obbyCamera = { rotX: -0.3, rotY: 0, dist: 400, targetRotY: 0 };
             
             obbyGame = {
-                player: { x: 50, y: 350, z: 0, vx: 0, vy: 0, vz: 0, onGround: false },
+                player: { x: 50, y: -50, z: 0, vx: 0, vy: 0, vz: 0, onGround: false, rot: 0 },
                 platforms: platforms,
-                goal: { x: 700, y: 300, width: 60, height: 80 },
+                goal: { x: lastPlat.x + lastPlat.width/2, y: lastPlat.y - 40, z: lastPlat.z, width: 60, height: 80 },
                 running: true,
                 won: false,
                 stage: obbyCurrentStage,
-                cameraX: 0
+                particles: [],
+                time: 0
             };
             
             // Key handlers
-            document.onkeydown = (e) => {
-                obbyKeys[e.code] = true;
+            const keyHandler = (e) => {
+                obbyKeys[e.code] = e.type === 'keydown';
                 if (e.code === 'Space') e.preventDefault();
             };
-            document.onkeyup = (e) => { obbyKeys[e.code] = false; };
+            document.addEventListener('keydown', keyHandler);
+            document.addEventListener('keyup', keyHandler);
+            
+            // Mouse handlers for camera
+            const mouseDown = (e) => {
+                obbyMouse.down = true;
+                obbyMouse.lastX = e.clientX;
+                obbyMouse.lastY = e.clientY;
+            };
+            const mouseUp = () => { obbyMouse.down = false; };
+            const mouseMove = (e) => {
+                if (obbyMouse.down) {
+                    const dx = e.clientX - obbyMouse.lastX;
+                    const dy = e.clientY - obbyMouse.lastY;
+                    obbyCamera.targetRotY += dx * 0.005;
+                    obbyCamera.rotX = Math.max(-1, Math.min(0.1, obbyCamera.rotX + dy * 0.003));
+                    obbyMouse.lastX = e.clientX;
+                    obbyMouse.lastY = e.clientY;
+                }
+            };
+            const wheel = (e) => {
+                e.preventDefault();
+                obbyCamera.dist = Math.max(200, Math.min(800, obbyCamera.dist + e.deltaY * 0.5));
+            };
+            
+            canvas.addEventListener('mousedown', mouseDown);
+            canvas.addEventListener('mouseup', mouseUp);
+            canvas.addEventListener('mouseleave', mouseUp);
+            canvas.addEventListener('mousemove', mouseMove);
+            canvas.addEventListener('wheel', wheel, { passive: false });
+            canvas.addEventListener('contextmenu', e => e.preventDefault());
+            
+            function addParticle(x, y, z, color) {
+                for (let i = 0; i < 5; i++) {
+                    obbyGame.particles.push({
+                        x, y, z,
+                        vx: (Math.random() - 0.5) * 3,
+                        vy: (Math.random() - 0.5) * 3 - 2,
+                        vz: (Math.random() - 0.5) * 3,
+                        life: 30, color
+                    });
+                }
+            }
             
             function loop() {
-                if (!obbyGame.running) return;
+                if (!obbyGame || !obbyGame.running) {
+                    document.removeEventListener('keydown', keyHandler);
+                    document.removeEventListener('keyup', keyHandler);
+                    canvas.removeEventListener('mousedown', mouseDown);
+                    canvas.removeEventListener('mouseup', mouseUp);
+                    canvas.removeEventListener('mouseleave', mouseUp);
+                    canvas.removeEventListener('mousemove', mouseMove);
+                    canvas.removeEventListener('wheel', wheel);
+                    return;
+                }
                 
                 const g = obbyGame;
-                const speed = 3 + (obbyCurrentStage * 0.02); // Speed increases with stage
-                const jumpPower = -10 - (obbyCurrentStage * 0.05);
+                g.time++;
                 
-                // Movement
-                if (obbyKeys['KeyA'] || obbyKeys['ArrowLeft']) g.player.vx = -speed;
-                else if (obbyKeys['KeyD'] || obbyKeys['ArrowRight']) g.player.vx = speed;
-                else g.player.vx *= 0.8;
+                // Smooth camera rotation
+                obbyCamera.rotY += (obbyCamera.targetRotY - obbyCamera.rotY) * 0.1;
                 
-                if (obbyKeys['KeyW'] || obbyKeys['ArrowUp']) g.player.vz = -speed * 0.5;
-                else if (obbyKeys['KeyS'] || obbyKeys['ArrowDown']) g.player.vz = speed * 0.5;
-                else g.player.vz *= 0.8;
+                const speed = 4 + (obbyCurrentStage * 0.02);
+                const jumpPower = -12 - (obbyCurrentStage * 0.03);
                 
-                if ((obbyKeys['Space'] || obbyKeys['KeyW']) && g.player.onGround) {
+                // Calculate movement direction based on camera
+                const moveAngle = obbyCamera.rotY;
+                let moveX = 0, moveZ = 0;
+                
+                if (obbyKeys['KeyW'] || obbyKeys['ArrowUp']) { moveX = Math.sin(moveAngle); moveZ = Math.cos(moveAngle); }
+                if (obbyKeys['KeyS'] || obbyKeys['ArrowDown']) { moveX = -Math.sin(moveAngle); moveZ = -Math.cos(moveAngle); }
+                if (obbyKeys['KeyA'] || obbyKeys['ArrowLeft']) { moveX = -Math.cos(moveAngle); moveZ = Math.sin(moveAngle); }
+                if (obbyKeys['KeyD'] || obbyKeys['ArrowRight']) { moveX = Math.cos(moveAngle); moveZ = -Math.sin(moveAngle); }
+                
+                const len = Math.sqrt(moveX*moveX + moveZ*moveZ);
+                if (len > 0) { moveX /= len; moveZ /= len; }
+                
+                g.player.vx = moveX * speed;
+                g.player.vz = moveZ * speed;
+                
+                if (obbyKeys['Space'] && g.player.onGround) {
                     g.player.vy = jumpPower;
                     g.player.onGround = false;
                     playJumpSound();
+                    addParticle(g.player.x, g.player.y + 20, g.player.z, '#22c55e');
                 }
                 
                 // Physics
-                g.player.vy += 0.5; // Gravity
+                g.player.vy += 0.6; // Gravity
                 g.player.x += g.player.vx;
                 g.player.y += g.player.vy;
                 g.player.z += g.player.vz;
                 
-                // Boundaries
-                if (g.player.x < 20) g.player.x = 20;
-                if (g.player.x > 780) g.player.x = 780;
-                if (g.player.z < -100) g.player.z = -100;
-                if (g.player.z > 100) g.player.z = 100;
+                // Rotation based on movement
+                if (Math.abs(g.player.vx) > 0.1 || Math.abs(g.player.vz) > 0.1) {
+                    g.player.rot = Math.atan2(g.player.vx, g.player.vz);
+                }
                 
                 // Platform collision
                 g.player.onGround = false;
                 for (const plat of g.platforms) {
-                    if (g.player.x > plat.x && g.player.x < plat.x + plat.width &&
-                        g.player.z > plat.z - 30 && g.player.z < plat.z + 30) {
-                        if (g.player.y > plat.y - 25 && g.player.y < plat.y + 10 && g.player.vy > 0) {
-                            g.player.y = plat.y - 20;
+                    const halfW = plat.width / 2;
+                    const halfD = plat.depth / 2;
+                    if (g.player.x > plat.x - halfW - 10 && g.player.x < plat.x + halfW + 10 &&
+                        g.player.z > plat.z - halfD - 10 && g.player.z < plat.z + halfD + 10) {
+                        if (g.player.y > plat.y - 45 && g.player.y < plat.y - 20 && g.player.vy > 0) {
+                            g.player.y = plat.y - 40;
                             g.player.vy = 0;
                             g.player.onGround = true;
                         }
@@ -2038,7 +2124,7 @@
                 }
                 
                 // Fall death
-                if (g.player.y > 500) {
+                if (g.player.y > 200) {
                     g.running = false;
                     playDeathSound();
                     showNotification('💀 You fell! Try again.');
@@ -2049,8 +2135,11 @@
                 }
                 
                 // Check goal
-                if (g.player.x > g.goal.x && g.player.x < g.goal.x + g.goal.width &&
-                    g.player.y > g.goal.y - 40 && g.player.y < g.goal.y + g.goal.height) {
+                const goalDist = Math.sqrt(
+                    Math.pow(g.player.x - g.goal.x, 2) +
+                    Math.pow(g.player.z - g.goal.z, 2)
+                );
+                if (goalDist < 40 && g.player.y > g.goal.y - 50 && g.player.y < g.goal.y + 40) {
                     g.won = true;
                     g.running = false;
                     
@@ -2072,84 +2161,266 @@
                     return;
                 }
                 
-                // Draw - 3D-ish perspective
-                ctx.fillStyle = '#1a1a2e';
+                // ===== RENDERING =====
+                const cx = 400, cy = 280, fov = 400;
+                
+                // Clear with gradient sky
+                let skyGrad = ctx.createLinearGradient(0, 0, 0, 450);
+                skyGrad.addColorStop(0, '#0f172a');
+                skyGrad.addColorStop(0.5, '#1e293b');
+                skyGrad.addColorStop(1, '#1a1a2e');
+                ctx.fillStyle = skyGrad;
                 ctx.fillRect(0, 0, 800, 450);
                 
-                // Grid floor
-                ctx.strokeStyle = 'rgba(34, 197, 94, 0.1)';
-                for (let i = 0; i < 20; i++) {
-                    ctx.beginPath();
-                    ctx.moveTo(i * 40, 400);
-                    ctx.lineTo(i * 40 - 100, 450);
-                    ctx.stroke();
+                // Collect all objects for depth sorting
+                let renderList = [];
+                
+                // Transform function
+                function transform(wx, wy, wz) {
+                    // Camera follows player
+                    let p = { x: wx - g.player.x, y: wy, z: wz - g.player.z };
+                    p = rotateY(p, -obbyCamera.rotY);
+                    p = rotateX(p, -obbyCamera.rotX);
+                    return p;
                 }
                 
-                // Platforms (3D effect based on z position)
-                const sortedPlatforms = [...g.platforms].sort((a, b) => a.z - b.z);
-                for (const plat of sortedPlatforms) {
-                    const scale = 1 + (plat.z / 200);
-                    const px = plat.x - (plat.z * 0.3);
-                    const py = plat.y + (plat.z * 0.2);
-                    const pw = plat.width * scale;
-                    const ph = 20 * scale;
+                // Add platforms to render list
+                for (const plat of g.platforms) {
+                    const hw = plat.width / 2, hd = plat.depth / 2;
+                    const corners = [
+                        { x: plat.x - hw, y: plat.y, z: plat.z - hd },
+                        { x: plat.x + hw, y: plat.y, z: plat.z - hd },
+                        { x: plat.x + hw, y: plat.y, z: plat.z + hd },
+                        { x: plat.x - hw, y: plat.y, z: plat.z + hd },
+                        { x: plat.x - hw, y: plat.y + 20, z: plat.z - hd },
+                        { x: plat.x + hw, y: plat.y + 20, z: plat.z - hd },
+                        { x: plat.x + hw, y: plat.y + 20, z: plat.z + hd },
+                        { x: plat.x - hw, y: plat.y + 20, z: plat.z + hd }
+                    ];
+                    const transformed = corners.map(c => transform(c.x, c.y, c.z));
+                    const projected = transformed.map(t => project(t, cx, cy, fov, obbyCamera.dist));
                     
-                    // Platform shadow
-                    ctx.fillStyle = 'rgba(0,0,0,0.3)';
-                    ctx.fillRect(px + 5, py + 5, pw, ph);
+                    // Calculate center z for sorting
+                    const avgZ = transformed.reduce((a, t) => a + t.z, 0) / 8;
                     
-                    // Platform top
-                    ctx.fillStyle = plat.color || '#22c55e';
-                    ctx.fillRect(px, py, pw, ph);
-                    
-                    // Platform side
-                    ctx.fillStyle = plat.sideColor || '#16a34a';
-                    ctx.fillRect(px, py + ph, pw, 10 * scale);
+                    renderList.push({
+                        type: 'platform',
+                        z: avgZ,
+                        projected,
+                        color: plat.color,
+                        sideColor: plat.sideColor
+                    });
                 }
                 
-                // Goal (flag)
-                ctx.fillStyle = '#fbbf24';
-                ctx.fillRect(g.goal.x, g.goal.y, 10, g.goal.height);
-                ctx.fillStyle = '#ef4444';
-                ctx.beginPath();
-                ctx.moveTo(g.goal.x + 10, g.goal.y);
-                ctx.lineTo(g.goal.x + 50, g.goal.y + 20);
-                ctx.lineTo(g.goal.x + 10, g.goal.y + 40);
-                ctx.fill();
+                // Add goal
+                const goalCorners = [
+                    { x: g.goal.x - 5, y: g.goal.y, z: g.goal.z - 5 },
+                    { x: g.goal.x + 5, y: g.goal.y, z: g.goal.z - 5 },
+                    { x: g.goal.x + 5, y: g.goal.y, z: g.goal.z + 5 },
+                    { x: g.goal.x - 5, y: g.goal.y, z: g.goal.z + 5 },
+                    { x: g.goal.x - 5, y: g.goal.y - 80, z: g.goal.z - 5 },
+                    { x: g.goal.x + 5, y: g.goal.y - 80, z: g.goal.z - 5 },
+                    { x: g.goal.x + 5, y: g.goal.y - 80, z: g.goal.z + 5 },
+                    { x: g.goal.x - 5, y: g.goal.y - 80, z: g.goal.z + 5 }
+                ];
+                const goalTransformed = goalCorners.map(c => transform(c.x, c.y, c.z));
+                const goalProjected = goalTransformed.map(t => project(t, cx, cy, fov, obbyCamera.dist));
+                const goalAvgZ = goalTransformed.reduce((a, t) => a + t.z, 0) / 8;
+                renderList.push({ type: 'goal', z: goalAvgZ, projected: goalProjected });
+                
+                // Add flag
+                const flagP = transform(g.goal.x + 5, g.goal.y - 80, g.goal.z);
+                const flagProj = project(flagP, cx, cy, fov, obbyCamera.dist);
+                if (flagProj) {
+                    renderList.push({ type: 'flag', z: flagP.z, proj: flagProj, x: g.goal.x, y: g.goal.y - 80, z: g.goal.z });
+                }
+                
+                // Add player (Roblox character)
+                const playerP = transform(g.player.x, g.player.y, g.player.z);
+                const playerProj = project(playerP, cx, cy, fov, obbyCamera.dist);
+                if (playerProj) {
+                    renderList.push({ 
+                        type: 'player', 
+                        z: playerP.z, 
+                        proj: playerProj, 
+                        rot: g.player.rot - obbyCamera.rotY,
+                        jumping: !g.player.onGround
+                    });
+                }
+                
+                // Add particles
+                g.particles = g.particles.filter(p => {
+                    p.x += p.vx; p.y += p.vy; p.z += p.vz;
+                    p.vy += 0.2;
+                    p.life--;
+                    const pp = transform(p.x, p.y, p.z);
+                    const pproj = project(pp, cx, cy, fov, obbyCamera.dist);
+                    if (pproj && p.life > 0) {
+                        renderList.push({ type: 'particle', z: pp.z, proj: pproj, life: p.life, color: p.color });
+                    }
+                    return p.life > 0;
+                });
+                
+                // Sort by z (far to near)
+                renderList.sort((a, b) => b.z - a.z);
+                
+                // Render all objects
+                for (const obj of renderList) {
+                    if (obj.type === 'platform' && obj.projected.every(p => p)) {
+                        const p = obj.projected;
+                        // Draw platform (top and sides)
+                        ctx.fillStyle = obj.color;
+                        ctx.beginPath();
+                        ctx.moveTo(p[4].x, p[4].y); // top face
+                        ctx.lineTo(p[5].x, p[5].y);
+                        ctx.lineTo(p[6].x, p[6].y);
+                        ctx.lineTo(p[7].x, p[7].y);
+                        ctx.closePath();
+                        ctx.fill();
+                        
+                        // Front face
+                        ctx.fillStyle = obj.sideColor;
+                        ctx.beginPath();
+                        ctx.moveTo(p[0].x, p[0].y);
+                        ctx.lineTo(p[1].x, p[1].y);
+                        ctx.lineTo(p[5].x, p[5].y);
+                        ctx.lineTo(p[4].x, p[4].y);
+                        ctx.closePath();
+                        ctx.fill();
+                        
+                        // Right face
+                        ctx.beginPath();
+                        ctx.moveTo(p[1].x, p[1].y);
+                        ctx.lineTo(p[2].x, p[2].y);
+                        ctx.lineTo(p[6].x, p[6].y);
+                        ctx.lineTo(p[5].x, p[5].y);
+                        ctx.closePath();
+                        ctx.fill();
+                        
+                        // Edge glow
+                        ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                    }
+                    else if (obj.type === 'goal' && obj.projected.every(p => p)) {
+                        const p = obj.projected;
+                        ctx.fillStyle = '#fbbf24';
+                        ctx.beginPath();
+                        ctx.moveTo(p[4].x, p[4].y);
+                        ctx.lineTo(p[5].x, p[5].y);
+                        ctx.lineTo(p[6].x, p[6].y);
+                        ctx.lineTo(p[7].x, p[7].y);
+                        ctx.closePath();
+                        ctx.fill();
+                        
+                        // Glowing effect
+                        ctx.shadowColor = '#fbbf24';
+                        ctx.shadowBlur = 20;
+                        ctx.fill();
+                        ctx.shadowBlur = 0;
+                    }
+                    else if (obj.type === 'flag' && obj.proj) {
+                        const scale = obj.proj.scale * 30;
+                        // Flag pole already drawn, now draw flag
+                        ctx.fillStyle = '#ef4444';
+                        ctx.beginPath();
+                        ctx.moveTo(obj.proj.x, obj.proj.y);
+                        ctx.lineTo(obj.proj.x + scale, obj.proj.y + scale * 0.4);
+                        ctx.lineTo(obj.proj.x, obj.proj.y + scale * 0.8);
+                        ctx.closePath();
+                        ctx.fill();
+                        
+                        // Checkered pattern
+                        ctx.fillStyle = '#fff';
+                        ctx.font = `${Math.max(12, scale * 0.4)}px Arial`;
+                        ctx.fillText('🏁', obj.proj.x + scale * 0.2, obj.proj.y + scale * 0.5);
+                    }
+                    else if (obj.type === 'player' && obj.proj) {
+                        const scale = obj.proj.scale * 25;
+                        const x = obj.proj.x;
+                        const y = obj.proj.y;
+                        
+                        ctx.save();
+                        ctx.translate(x, y);
+                        ctx.rotate(obj.rot);
+                        
+                        // Shadow
+                        ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                        ctx.beginPath();
+                        ctx.ellipse(0, scale * 0.8, scale * 0.5, scale * 0.2, 0, 0, Math.PI * 2);
+                        ctx.fill();
+                        
+                        // Body (blue torso)
+                        ctx.fillStyle = '#3b82f6';
+                        ctx.fillRect(-scale * 0.4, -scale * 0.3, scale * 0.8, scale * 0.6);
+                        
+                        // Head (yellow skin)
+                        ctx.fillStyle = '#fcd34d';
+                        ctx.fillRect(-scale * 0.35, -scale * 0.85, scale * 0.7, scale * 0.55);
+                        
+                        // Face
+                        ctx.fillStyle = '#1e3a5f';
+                        // Eyes
+                        ctx.fillRect(-scale * 0.2, -scale * 0.7, scale * 0.12, scale * 0.1);
+                        ctx.fillRect(scale * 0.08, -scale * 0.7, scale * 0.12, scale * 0.1);
+                        // Smile
+                        ctx.fillRect(-scale * 0.1, -scale * 0.5, scale * 0.2, scale * 0.05);
+                        
+                        // Arms
+                        ctx.fillStyle = '#fcd34d';
+                        const armSwing = Math.sin(g.time * 0.2) * (obj.jumping ? 0 : scale * 0.15);
+                        ctx.fillRect(-scale * 0.6, -scale * 0.2 + armSwing, scale * 0.15, scale * 0.4);
+                        ctx.fillRect(scale * 0.45, -scale * 0.2 - armSwing, scale * 0.15, scale * 0.4);
+                        
+                        // Legs
+                        ctx.fillStyle = '#1e3a5f';
+                        const legSwing = Math.sin(g.time * 0.3) * (obj.jumping ? 0 : scale * 0.1);
+                        ctx.fillRect(-scale * 0.3, scale * 0.3 + legSwing, scale * 0.2, scale * 0.35);
+                        ctx.fillRect(scale * 0.1, scale * 0.3 - legSwing, scale * 0.2, scale * 0.35);
+                        
+                        ctx.restore();
+                    }
+                    else if (obj.type === 'particle' && obj.proj) {
+                        ctx.globalAlpha = obj.life / 30;
+                        ctx.fillStyle = obj.color;
+                        ctx.beginPath();
+                        ctx.arc(obj.proj.x, obj.proj.y, obj.proj.scale * 3, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.globalAlpha = 1;
+                    }
+                }
+                
+                // UI Overlay
+                ctx.fillStyle = 'rgba(0,0,0,0.5)';
+                ctx.fillRect(0, 0, 800, 50);
                 ctx.fillStyle = 'white';
-                ctx.font = 'bold 14px Arial';
-                ctx.fillText('🏁', g.goal.x + 20, g.goal.y + 28);
-                
-                // Player (Roblox-style character)
-                const playerScale = 1 + (g.player.z / 200);
-                const px = g.player.x - (g.player.z * 0.3);
-                const py = g.player.y + (g.player.z * 0.2);
-                
-                // Body
-                ctx.fillStyle = '#3b82f6';
-                ctx.fillRect(px - 12 * playerScale, py - 30 * playerScale, 24 * playerScale, 30 * playerScale);
-                // Head
-                ctx.fillStyle = '#fcd34d';
-                ctx.fillRect(px - 10 * playerScale, py - 50 * playerScale, 20 * playerScale, 20 * playerScale);
-                // Eyes
-                ctx.fillStyle = '#000';
-                ctx.fillRect(px - 6 * playerScale, py - 45 * playerScale, 4 * playerScale, 4 * playerScale);
-                ctx.fillRect(px + 2 * playerScale, py - 45 * playerScale, 4 * playerScale, 4 * playerScale);
-                // Smile
-                ctx.fillRect(px - 4 * playerScale, py - 38 * playerScale, 8 * playerScale, 2 * playerScale);
-                // Legs
-                ctx.fillStyle = '#1e3a5f';
-                ctx.fillRect(px - 10 * playerScale, py, 8 * playerScale, 15 * playerScale);
-                ctx.fillRect(px + 2 * playerScale, py, 8 * playerScale, 15 * playerScale);
-                
-                // Stage indicator
-                ctx.fillStyle = 'white';
-                ctx.font = 'bold 24px Arial';
+                ctx.font = 'bold 20px Arial';
                 ctx.textAlign = 'center';
-                ctx.fillText('Stage ' + g.stage + ' / 100', 400, 35);
-                ctx.font = '14px Arial';
+                ctx.fillText('Stage ' + g.stage + ' / 100', 400, 30);
+                ctx.font = '12px Arial';
                 ctx.fillStyle = '#9ca3af';
-                ctx.fillText('Reach the 🏁 to complete!', 400, 55);
+                ctx.fillText('WASD: Move | Space: Jump | Mouse Drag: Rotate Camera | Scroll: Zoom', 400, 45);
+                
+                // Minimap
+                ctx.fillStyle = 'rgba(0,0,0,0.5)';
+                ctx.fillRect(10, 60, 100, 100);
+                const mapScale = 0.03;
+                const mapOffsetX = 60;
+                const mapOffsetY = 110;
+                for (const plat of g.platforms) {
+                    ctx.fillStyle = plat.color;
+                    ctx.fillRect(
+                        mapOffsetX + (plat.x - g.player.x) * mapScale - 2,
+                        mapOffsetY + (plat.z - g.player.z) * mapScale - 2,
+                        4, 4
+                    );
+                }
+                ctx.fillStyle = '#fbbf24';
+                ctx.fillRect(mapOffsetX, mapOffsetY, 4, 4);
+                ctx.fillStyle = '#22c55e';
+                ctx.beginPath();
+                ctx.arc(mapOffsetX, mapOffsetY, 3, 0, Math.PI * 2);
+                ctx.fill();
                 
                 requestAnimationFrame(loop);
             }
@@ -2161,43 +2432,44 @@
             const difficulty = Math.min(stageNum / 20, 5); // 0 to 5 difficulty
             
             // Starting platform
-            platforms.push({ x: 0, y: 380, z: 0, width: 100, height: 20, color: '#22c55e', sideColor: '#16a34a' });
+            platforms.push({ x: 0, y: 100, z: 0, width: 120, depth: 120, color: '#22c55e', sideColor: '#16a34a' });
             
-            let x = 120;
-            const numPlatforms = 5 + Math.floor(stageNum / 10); // More platforms = harder
+            let x = 100;
+            let z = 0;
+            const numPlatforms = 6 + Math.floor(stageNum / 8);
             
             for (let i = 0; i < numPlatforms; i++) {
-                const gap = 60 + Math.random() * (40 + difficulty * 20); // Bigger gaps at higher stages
-                const width = Math.max(40, 80 - difficulty * 5); // Smaller platforms at higher stages
-                const zVar = (Math.random() - 0.5) * 60 * difficulty; // Z variation for 3D movement
-                const yVar = Math.random() * -50 * difficulty; // Height variation
+                const gap = 70 + Math.random() * (30 + difficulty * 25);
+                const width = Math.max(50, 100 - difficulty * 8);
+                const depth = Math.max(50, 100 - difficulty * 8);
+                const zVar = (Math.random() - 0.5) * 150 * (1 + difficulty * 0.3);
+                const yVar = (Math.random() - 0.3) * 40 * difficulty;
                 
                 x += gap;
+                z = zVar;
                 
-                // Random platform colors
                 const colors = [
                     { color: '#22c55e', sideColor: '#16a34a' },
                     { color: '#3b82f6', sideColor: '#1d4ed8' },
                     { color: '#a855f7', sideColor: '#7c3aed' },
                     { color: '#f97316', sideColor: '#ea580c' },
-                    { color: '#ec4899', sideColor: '#db2777' }
+                    { color: '#ec4899', sideColor: '#db2777' },
+                    { color: '#06b6d4', sideColor: '#0891b2' }
                 ];
                 const colorChoice = colors[Math.floor(Math.random() * colors.length)];
                 
                 platforms.push({
                     x: x,
-                    y: 350 + yVar,
-                    z: zVar,
+                    y: 100 + yVar,
+                    z: z,
                     width: width,
-                    height: 20,
+                    depth: depth,
                     ...colorChoice
                 });
-                
-                x += width;
             }
             
             // Goal platform
-            platforms.push({ x: x + 50, y: 300, z: 0, width: 80, height: 20, color: '#fbbf24', sideColor: '#f59e0b' });
+            platforms.push({ x: x + 100, y: 80, z: 0, width: 100, depth: 100, color: '#fbbf24', sideColor: '#f59e0b' });
             
             return platforms;
         }
