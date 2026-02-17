@@ -1890,7 +1890,7 @@
                     
                     // Update admin stats
                     let totalCredits = 0, totalPlays = 0, totalCash = 0;
-                    result.accounts.forEach((acc: any) => {
+                    result.accounts.forEach(function(acc) {
                         totalCredits += acc.stats?.credits || 0;
                         totalPlays += acc.stats?.plays || 0;
                         totalCash += acc.stats?.cashBalance || 0;
