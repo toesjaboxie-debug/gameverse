@@ -401,13 +401,13 @@
                 </div>
 
                 <!-- Admin Tabs -->
-                <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
-                    <button class="admin-tab-btn active" onclick="switchAdminTab('accounts')" id="adminTabAccounts" style="padding: 12px 20px; border: none; border-radius: 10px; background: rgba(236, 72, 153, 0.2); color: #ec4899; font-weight: 600; cursor: pointer;">👥 Accounts</button>
-                    <button class="admin-tab-btn" onclick="switchAdminTab('promocodes')" id="adminTabPromo" style="padding: 12px 20px; border: none; border-radius: 10px; background: rgba(255, 255, 255, 0.05); color: #9ca3af; font-weight: 600; cursor: pointer;">🎟️ Promo Codes</button>
-                    <button class="admin-tab-btn" onclick="switchAdminTab('tasks')" id="adminTabTasks" style="padding: 12px 20px; border: none; border-radius: 10px; background: rgba(255, 255, 255, 0.05); color: #9ca3af; font-weight: 600; cursor: pointer;">📋 Tasks</button>
-                    <button class="admin-tab-btn" onclick="switchAdminTab('withdrawals')" id="adminTabWithdrawals" style="padding: 12px 20px; border: none; border-radius: 10px; background: rgba(255, 255, 255, 0.05); color: #9ca3af; font-weight: 600; cursor: pointer;">💸 Withdrawals</button>
-                    <button class="admin-tab-btn" onclick="switchAdminTab('levels')" id="adminTabLevels" style="padding: 12px 20px; border: none; border-radius: 10px; background: rgba(255, 255, 255, 0.05); color: #9ca3af; font-weight: 600; cursor: pointer;">📦 Levels</button>
-                    <button class="admin-tab-btn" onclick="switchAdminTab('settings')" id="adminTabSettings" style="padding: 12px 20px; border: none; border-radius: 10px; background: rgba(255, 255, 255, 0.05); color: #9ca3af; font-weight: 600; cursor: pointer;">⚙️ Settings</button>
+                <div id="adminTabsContainer" style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                    <button class="admin-tab-btn" data-tab="accounts" id="adminTabAccounts" style="padding: 12px 20px; border: none; border-radius: 10px; background: rgba(236, 72, 153, 0.2); color: #ec4899; font-weight: 600; cursor: pointer;">👥 Accounts</button>
+                    <button class="admin-tab-btn" data-tab="promocodes" id="adminTabPromo" style="padding: 12px 20px; border: none; border-radius: 10px; background: rgba(255, 255, 255, 0.05); color: #9ca3af; font-weight: 600; cursor: pointer;">🎟️ Promo Codes</button>
+                    <button class="admin-tab-btn" data-tab="tasks" id="adminTabTasks" style="padding: 12px 20px; border: none; border-radius: 10px; background: rgba(255, 255, 255, 0.05); color: #9ca3af; font-weight: 600; cursor: pointer;">📋 Tasks</button>
+                    <button class="admin-tab-btn" data-tab="withdrawals" id="adminTabWithdrawals" style="padding: 12px 20px; border: none; border-radius: 10px; background: rgba(255, 255, 255, 0.05); color: #9ca3af; font-weight: 600; cursor: pointer;">💸 Withdrawals</button>
+                    <button class="admin-tab-btn" data-tab="levels" id="adminTabLevels" style="padding: 12px 20px; border: none; border-radius: 10px; background: rgba(255, 255, 255, 0.05); color: #9ca3af; font-weight: 600; cursor: pointer;">📦 Levels</button>
+                    <button class="admin-tab-btn" data-tab="settings" id="adminTabSettings" style="padding: 12px 20px; border: none; border-radius: 10px; background: rgba(255, 255, 255, 0.05); color: #9ca3af; font-weight: 600; cursor: pointer;">⚙️ Settings</button>
                 </div>
 
                 <!-- Accounts Section -->
@@ -881,6 +881,7 @@
             renderGeometryLevels();
             renderSkins();
             loadGlobalSettings();
+            initAdminTabs();
             setInterval(updateDailyTimer, 1000);
             setInterval(checkBroadcasts, 5000); // Check for admin broadcasts
             setInterval(syncWithServer, 30000); // Sync stats with server every 30 seconds
@@ -1773,9 +1774,22 @@
         }
         
         // Admin tab switching
+        function initAdminTabs() {
+            const tabButtons = document.querySelectorAll('.admin-tab-btn');
+            tabButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tab = this.getAttribute('data-tab');
+                    switchAdminTab(tab);
+                });
+            });
+        }
+        
         function switchAdminTab(tab) {
+            console.log('Switching to tab:', tab);
+            
             // Hide all sections
             document.querySelectorAll('.admin-section').forEach(s => s.style.display = 'none');
+            
             // Reset all tab buttons
             document.querySelectorAll('.admin-tab-btn').forEach(t => {
                 t.style.background = 'rgba(255, 255, 255, 0.05)';
@@ -1804,7 +1818,12 @@
             const section = document.getElementById(sectionMap[tab]);
             const activeTab = document.getElementById(tabMap[tab]);
             
-            if (section) section.style.display = 'block';
+            if (section) {
+                section.style.display = 'block';
+            } else {
+                console.log('Section not found:', sectionMap[tab]);
+            }
+            
             if (activeTab) {
                 activeTab.style.background = 'rgba(236, 72, 153, 0.2)';
                 activeTab.style.color = '#ec4899';
