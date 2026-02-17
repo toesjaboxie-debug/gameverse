@@ -547,6 +547,94 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: true });
       }
       
+      case 'makeAdmin': {
+        const { adminUser, username } = data;
+        const upperAdmin = adminUser?.toUpperCase();
+        const upperUsername = username?.toUpperCase();
+        
+        const adminResult = await sql`
+          SELECT is_admin FROM accounts WHERE username = ${upperAdmin} LIMIT 1
+        `;
+        
+        if (adminResult.length === 0 || !adminResult[0].is_admin) {
+          return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+        }
+        
+        await sql`
+          UPDATE accounts SET is_admin = true WHERE username = ${upperUsername}
+        `;
+        
+        return NextResponse.json({ success: true });
+      }
+      
+      case 'removeAdmin': {
+        const { adminUser, username } = data;
+        const upperAdmin = adminUser?.toUpperCase();
+        const upperUsername = username?.toUpperCase();
+        
+        const adminResult = await sql`
+          SELECT is_admin FROM accounts WHERE username = ${upperAdmin} LIMIT 1
+        `;
+        
+        if (adminResult.length === 0 || !adminResult[0].is_admin) {
+          return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+        }
+        
+        if (upperUsername === upperAdmin) {
+          return NextResponse.json({ error: 'Cannot remove your own admin status' }, { status: 400 });
+        }
+        
+        await sql`
+          UPDATE accounts SET is_admin = false WHERE username = ${upperUsername}
+        `;
+        
+        return NextResponse.json({ success: true });
+      }
+      
+      case 'updateAccountFull': {
+        const { adminUser, username, updates } = data;
+        const upperAdmin = adminUser?.toUpperCase();
+        const upperUsername = username?.toUpperCase();
+        
+        const adminResult = await sql`
+          SELECT is_admin FROM accounts WHERE username = ${upperAdmin} LIMIT 1
+        `;
+        
+        if (adminResult.length === 0 || !adminResult[0].is_admin) {
+          return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+        }
+        
+        await sql`
+          UPDATE accounts SET
+            credits = ${updates.credits ?? 0},
+            plays = ${updates.plays ?? 0},
+            cash_balance = ${updates.cashBalance ?? 0}
+          WHERE username = ${upperUsername}
+        `;
+        
+        return NextResponse.json({ success: true });
+      }
+      
+      case 'addCredits': {
+        const { adminUser, username, amount } = data;
+        const upperAdmin = adminUser?.toUpperCase();
+        const upperUsername = username?.toUpperCase();
+        
+        const adminResult = await sql`
+          SELECT is_admin FROM accounts WHERE username = ${upperAdmin} LIMIT 1
+        `;
+        
+        if (adminResult.length === 0 || !adminResult[0].is_admin) {
+          return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+        }
+        
+        await sql`
+          UPDATE accounts SET credits = credits + ${amount} WHERE username = ${upperUsername}
+        `;
+        
+        return NextResponse.json({ success: true });
+      }
+      
       default:
         return NextResponse.json({ error: 'Unknown action' }, { status: 400 });
     }

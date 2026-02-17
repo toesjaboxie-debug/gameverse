@@ -1708,11 +1708,134 @@
                         </div>
                     </div>
                     <div style="display: flex; gap: 5px;">
-                        <button class="dev-btn" style="background: rgba(59, 130, 246, 0.5); color: white; font-size: 12px;" onclick="editAccount('${acc.username}')">Edit</button>
-                        ${!acc.isAdmin ? `<button class="dev-btn delete" style="font-size: 12px;" onclick="deleteAccount('${acc.username}')">Delete</button>` : ''}
+                        <button class="dev-btn" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; font-size: 12px;" onclick="showEditAccountModal('${acc.username}', ${acc.stats?.credits || 0}, ${acc.stats?.plays || 0}, ${acc.stats?.cashBalance || 0}, ${acc.isAdmin ? 'true' : 'false'})">✏️ Edit</button>
+                        <button class="dev-btn" style="background: linear-gradient(135deg, #22c55e, #10b981); color: white; font-size: 12px;" onclick="quickAddCredits('${acc.username}')">💰+</button>
+                        ${!acc.isAdmin ? `<button class="dev-btn" style="background: linear-gradient(135deg, #a855f7, #7c3aed); color: white; font-size: 12px;" onclick="makeAdmin('${acc.username}')">👑 Admin</button>` : `<button class="dev-btn" style="background: rgba(239,68,68,0.3); color: #ef4444; font-size: 12px;" onclick="removeAdmin('${acc.username}')">Remove Admin</button>`}
+                        ${!acc.isAdmin ? `<button class="dev-btn delete" style="font-size: 12px;" onclick="deleteAccount('${acc.username}')">🗑️</button>` : ''}
                     </div>
                 </div>
             `).join('');
+        }
+        
+        // Show edit account modal
+        function showEditAccountModal(username, credits, plays, cash, isAdmin) {
+            const newCredits = prompt(`Edit credits for ${username}:`, credits);
+            if (newCredits === null) return;
+            
+            const newPlays = prompt(`Edit plays for ${username}:`, plays);
+            if (newPlays === null) return;
+            
+            const newCash = prompt(`Edit cash for ${username}:`, cash.toFixed(2));
+            if (newCash === null) return;
+            
+            updateAccountFull(username, {
+                credits: parseInt(newCredits) || 0,
+                plays: parseInt(newPlays) || 0,
+                cashBalance: parseFloat(newCash) || 0
+            });
+        }
+        
+        async function updateAccountFull(username, updates) {
+            try {
+                const response = await fetch('/api/accounts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'updateAccountFull',
+                        data: { 
+                            adminUser: currentAccount.username, 
+                            username,
+                            updates
+                        }
+                    })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showNotification('Account updated!');
+                    loadAllAccounts();
+                } else {
+                    showNotification(result.error || 'Error updating account');
+                }
+            } catch (e) {
+                showNotification('Error updating account');
+            }
+        }
+        
+        async function quickAddCredits(username) {
+            const amount = prompt('Enter credits to add (use negative to subtract):', '100');
+            if (amount === null) return;
+            
+            try {
+                const response = await fetch('/api/accounts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'addCredits',
+                        data: { 
+                            adminUser: currentAccount.username, 
+                            username,
+                            amount: parseInt(amount) || 0
+                        }
+                    })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showNotification(`Added ${amount} credits to ${username}!`);
+                    loadAllAccounts();
+                }
+            } catch (e) {
+                showNotification('Error adding credits');
+            }
+        }
+        
+        async function makeAdmin(username) {
+            if (!confirm(`Make ${username} an admin?`)) return;
+            
+            try {
+                const response = await fetch('/api/accounts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'makeAdmin',
+                        data: { 
+                            adminUser: currentAccount.username, 
+                            username
+                        }
+                    })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showNotification(`${username} is now an admin!`);
+                    loadAllAccounts();
+                }
+            } catch (e) {
+                showNotification('Error making admin');
+            }
+        }
+        
+        async function removeAdmin(username) {
+            if (!confirm(`Remove admin from ${username}?`)) return;
+            
+            try {
+                const response = await fetch('/api/accounts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'removeAdmin',
+                        data: { 
+                            adminUser: currentAccount.username, 
+                            username
+                        }
+                    })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showNotification(`${username} is no longer an admin!`);
+                    loadAllAccounts();
+                }
+            } catch (e) {
+                showNotification('Error removing admin');
+            }
         }
         
         async function deleteAccount(username) {
@@ -1738,30 +1861,8 @@
         }
         
         async function editAccount(username) {
-            const credits = prompt('Enter new credits amount:');
-            if (credits === null) return;
-            
-            try {
-                const response = await fetch('/api/accounts', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'updateAccount',
-                        data: { 
-                            adminUser: currentAccount.username, 
-                            username,
-                            updates: { credits: parseInt(credits) || 0 }
-                        }
-                    })
-                });
-                const result = await response.json();
-                if (result.success) {
-                    showNotification('Account updated!');
-                    loadAllAccounts();
-                }
-            } catch (e) {
-                showNotification('Error updating account');
-            }
+            // This is now replaced by showEditAccountModal
+            showEditAccountModal(username, 0, 0, 0, false);
         }
         async function createTask() {
             const name = document.getElementById('taskName').value; const type = document.getElementById('taskType').value; const url = document.getElementById('taskUrl').value; const cooldown = parseInt(document.getElementById('taskCooldown').value) || 24; const credits = parseInt(document.getElementById('taskCredits').value) || 0; const plays = parseInt(document.getElementById('taskPlays').value) || 0; const cash = parseFloat(document.getElementById('taskCash').value) || 0; const htmlContent = document.getElementById('taskHtmlContent')?.value || '';
