@@ -1943,7 +1943,7 @@
             document.getElementById('geometryStartBtn').style.display = 'inline-block';
         }
 
-        // ==================== TRUE 3D OBBY GAME ====================
+        // ==================== ULTIMATE 3D OBBY GAME ====================
         let obbyGame = null;
         let obbyCurrentStage = 1;
         let obbyStagesCompleted = 0;
@@ -1966,6 +1966,20 @@
             const scale = fov / z;
             return { x: cx + p.x * scale, y: cy + p.y * scale, scale: scale };
         }
+        
+        // Level Theme Colors
+        const OBBY_THEMES = {
+            tutorial: { sky: ['#1a365d', '#2563eb', '#1e40af'], plat: '#22c55e', side: '#16a34a', name: 'Tutorial' },
+            forest: { sky: ['#14532d', '#166534', '#15803d'], plat: '#22c55e', side: '#15803d', name: 'Forest' },
+            ice: { sky: ['#0c4a6e', '#0ea5e9', '#0284c7'], plat: '#67e8f9', side: '#22d3ee', name: 'Ice World' },
+            lava: { sky: ['#450a0a', '#dc2626', '#7f1d1d'], plat: '#f97316', side: '#ea580c', name: 'Lava Land' },
+            space: { sky: ['#0f0f23', '#1a1a3e', '#0a0a1a'], plat: '#a855f7', side: '#9333ea', name: 'Space' },
+            neon: { sky: ['#1a1a2e', '#16213e', '#0f0f1a'], plat: '#ec4899', side: '#db2777', name: 'Neon City' },
+            desert: { sky: ['#78350f', '#d97706', '#92400e'], plat: '#fbbf24', side: '#f59e0b', name: 'Desert' },
+            ocean: { sky: ['#0c4a6e', '#0369a1', '#075985'], plat: '#06b6d4', side: '#0891b2', name: 'Ocean' },
+            nightmare: { sky: ['#1c1917', '#292524', '#0c0a09'], plat: '#ef4444', side: '#dc2626', name: 'Nightmare' },
+            rainbow: { sky: ['#4c1d95', '#7c3aed', '#5b21b6'], plat: '#f472b6', side: '#ec4899', name: 'Rainbow' }
+        };
         
         function startObbyGame() {
             // Check plays
