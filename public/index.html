@@ -1777,7 +1777,7 @@
             // Hide all sections
             document.querySelectorAll('.admin-section').forEach(s => s.style.display = 'none');
             // Reset all tab buttons
-            document.querySelectorAll('.dev-tab').forEach(t => {
+            document.querySelectorAll('.admin-tab-btn').forEach(t => {
                 t.style.background = 'rgba(255, 255, 255, 0.05)';
                 t.style.color = '#9ca3af';
             });
@@ -1801,10 +1801,14 @@
                 'settings': 'adminTabSettings'
             };
             
-            document.getElementById(sectionMap[tab]).style.display = 'block';
+            const section = document.getElementById(sectionMap[tab]);
             const activeTab = document.getElementById(tabMap[tab]);
-            activeTab.style.background = 'rgba(236, 72, 153, 0.2)';
-            activeTab.style.color = '#ec4899';
+            
+            if (section) section.style.display = 'block';
+            if (activeTab) {
+                activeTab.style.background = 'rgba(236, 72, 153, 0.2)';
+                activeTab.style.color = '#ec4899';
+            }
         }
         
         async function giveAllPlayers() {
