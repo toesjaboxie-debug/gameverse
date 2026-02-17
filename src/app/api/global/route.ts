@@ -126,6 +126,19 @@ export async function POST(request: NextRequest) {
         break;
       }
       
+      case 'updatePromoCode': {
+        if (settings.customPromoCodes[data.code]) {
+          settings.customPromoCodes[data.code] = {
+            ...settings.customPromoCodes[data.code],
+            credits: data.credits ?? settings.customPromoCodes[data.code].credits,
+            plays: data.plays ?? settings.customPromoCodes[data.code].plays,
+            cash: data.cash ?? settings.customPromoCodes[data.code].cash,
+            max_uses: data.maxUses ?? settings.customPromoCodes[data.code].max_uses
+          };
+        }
+        break;
+      }
+      
       case 'setMinWithdraw': {
         settings.minWithdraw = data.min;
         break;

@@ -379,119 +379,191 @@
         <div class="page" id="devPage">
             <div class="dev-page">
                 <div class="section-title"><h2 style="color: #ec4899;">🔧 Admin Panel</h2><p>Manage your game</p></div>
-                <div class="dev-section">
-                    <h3>📢 Error Reports</h3>
-                    <p style="color: #9ca3af; margin-bottom: 15px; font-size: 13px;">View errors reported by users</p>
-                    <div id="errorReportsList" style="max-height: 200px; overflow-y: auto;"></div>
-                </div>
-                <div class="dev-section">
-                    <h3>📣 Broadcast Message</h3>
-                    <p style="color: #9ca3af; margin-bottom: 15px; font-size: 13px;">Send a message to all online players!</p>
-                    <div class="dev-row">
-                        <input type="text" class="dev-input" id="broadcastMessage" placeholder="Enter message...">
-                        <select class="dev-input" id="broadcastType" style="max-width: 100px;">
-                            <option value="info">Info</option>
-                            <option value="warning">Warning</option>
-                            <option value="reward">Reward</option>
-                        </select>
-                        <button class="dev-btn save" onclick="sendBroadcast()">Send</button>
+                
+                <!-- Quick Stats -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 25px;">
+                    <div style="background: linear-gradient(135deg, rgba(234, 179, 8, 0.2), rgba(245, 158, 11, 0.1)); border: 1px solid rgba(234, 179, 8, 0.3); border-radius: 15px; padding: 20px; text-align: center;">
+                        <div style="font-size: 32px; font-weight: bold; color: #fbbf24;" id="adminTotalCredits">0</div>
+                        <div style="color: #9ca3af; font-size: 12px;">Total Credits</div>
+                    </div>
+                    <div style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(16, 185, 129, 0.1)); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 15px; padding: 20px; text-align: center;">
+                        <div style="font-size: 32px; font-weight: bold; color: #22c55e;" id="adminTotalPlays">0</div>
+                        <div style="color: #9ca3af; font-size: 12px;">Total Plays</div>
+                    </div>
+                    <div style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(139, 92, 246, 0.1)); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 15px; padding: 20px; text-align: center;">
+                        <div style="font-size: 32px; font-weight: bold; color: #a855f7;" id="adminTotalCash">$0</div>
+                        <div style="color: #9ca3af; font-size: 12px;">Total Cash</div>
+                    </div>
+                    <div style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(29, 78, 216, 0.1)); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 15px; padding: 20px; text-align: center;">
+                        <div style="font-size: 32px; font-weight: bold; color: #3b82f6;" id="adminTotalUsers">0</div>
+                        <div style="color: #9ca3af; font-size: 12px;">Total Users</div>
                     </div>
                 </div>
-                <div class="dev-section">
-                    <h3>👥 Account Management</h3>
-                    <p style="color: #9ca3af; margin-bottom: 15px; font-size: 13px;">View and manage all registered accounts</p>
-                    <button class="dev-btn save" onclick="loadAllAccounts()" style="margin-bottom: 15px;">🔄 Refresh Accounts</button>
-                    <div id="accountsList" style="max-height: 400px; overflow-y: auto;"></div>
+
+                <!-- Admin Tabs -->
+                <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                    <button class="dev-tab active" onclick="switchAdminTab('accounts')" id="adminTabAccounts" style="padding: 12px 20px; border: none; border-radius: 10px; background: rgba(236, 72, 153, 0.2); color: #ec4899; font-weight: 600; cursor: pointer;">👥 Accounts</button>
+                    <button class="dev-tab" onclick="switchAdminTab('promocodes')" id="adminTabPromo" style="padding: 12px 20px; border: none; border-radius: 10px; background: rgba(255, 255, 255, 0.05); color: #9ca3af; font-weight: 600; cursor: pointer;">🎟️ Promo Codes</button>
+                    <button class="dev-tab" onclick="switchAdminTab('tasks')" id="adminTabTasks" style="padding: 12px 20px; border: none; border-radius: 10px; background: rgba(255, 255, 255, 0.05); color: #9ca3af; font-weight: 600; cursor: pointer;">📋 Tasks</button>
+                    <button class="dev-tab" onclick="switchAdminTab('withdrawals')" id="adminTabWithdrawals" style="padding: 12px 20px; border: none; border-radius: 10px; background: rgba(255, 255, 255, 0.05); color: #9ca3af; font-weight: 600; cursor: pointer;">💸 Withdrawals</button>
+                    <button class="dev-tab" onclick="switchAdminTab('levels')" id="adminTabLevels" style="padding: 12px 20px; border: none; border-radius: 10px; background: rgba(255, 255, 255, 0.05); color: #9ca3af; font-weight: 600; cursor: pointer;">📦 Levels</button>
+                    <button class="dev-tab" onclick="switchAdminTab('settings')" id="adminTabSettings" style="padding: 12px 20px; border: none; border-radius: 10px; background: rgba(255, 255, 255, 0.05); color: #9ca3af; font-weight: 600; cursor: pointer;">⚙️ Settings</button>
                 </div>
-                <div class="dev-section">
-                    <h3>🎟️ Promo Code Management</h3>
-                    <p style="color: #9ca3af; margin-bottom: 15px; font-size: 13px;">Create promo codes with rewards and set max uses per user!</p>
-                    <div class="dev-row"><input type="text" class="dev-input" id="promoCodeName" placeholder="Code name"><input type="number" class="dev-input" id="promoCodeMaxUses" placeholder="Max uses (0=∞)" style="max-width: 120px;" min="0"></div>
-                    <div class="dev-row"><input type="number" class="dev-input" id="promoCodeCredits" placeholder="Credits" style="max-width: 100px;"><input type="number" class="dev-input" id="promoCodePlays" placeholder="Plays" style="max-width: 100px;"><input type="number" class="dev-input" id="promoCodeCash" placeholder="Cash" step="0.01" style="max-width: 100px;"></div>
-                    <div class="dev-row">
-                        <select class="dev-input" id="promoCodeEventType" style="max-width: 120px;"><option value="none">No Event</option><option value="emoji">Emoji Rain</option><option value="text">Custom Text</option></select>
-                        <input type="text" class="dev-input" id="promoCodeEmoji" placeholder="Emoji(s)" style="max-width: 150px;">
-                        <input type="text" class="dev-input" id="promoCodeMessage" placeholder="Custom message">
-                    </div>
-                    <button class="dev-btn save" onclick="createPromoCode()">Create Code</button>
-                    <div id="promoCodesList" style="margin-top: 15px;"></div>
-                </div>
-                <div class="dev-section">
-                    <h3>📦 Level Editor</h3>
-                    <p style="color: #9ca3af; margin-bottom: 15px; font-size: 13px;">Create or edit Geometry Dash levels! Select a default level to edit or create new. Click=spike, Right-click=coin, Double-click=portal</p>
-                    <div class="dev-row">
-                        <select class="dev-input" id="levelSelect" onchange="loadLevelForEdit()" style="max-width: 200px;">
-                            <option value="">-- New Level --</option>
-                            <option value="easy">Easy - Stereo Madness</option>
-                            <option value="medium">Medium - Back On Track</option>
-                            <option value="hard">Hard - Polargeist</option>
-                            <option value="impossible">Impossible - Deadlocked</option>
-                        </select>
-                        <input type="text" class="dev-input" id="levelName" placeholder="Level Name">
-                        <input type="number" class="dev-input" id="levelDistance" placeholder="Distance" style="max-width: 100px;">
-                    </div>
-                    <div id="levelEditorCanvas" style="background: rgba(0,0,0,0.3); border-radius: 10px; height: 200px; margin-bottom: 10px; position: relative; overflow: hidden; cursor: crosshair;">
-                        <div style="position: absolute; bottom: 0; left: 0; right: 0; height: 50px; background: #0e7490;"></div>
-                        <div style="position: absolute; top: 10px; left: 10px; color: #9ca3af; font-size: 11px;">Click=Spike | Right-Click=Coin | Double-Click=Portal</div>
-                    </div>
-                    <div class="dev-row">
-                        <button class="dev-btn save" onclick="saveCustomLevel()">Save Level</button>
-                        <button class="dev-btn delete" onclick="deleteCurrentLevel()">Delete Level</button>
-                        <button class="dev-btn" style="background: rgba(255,255,255,0.1); color: white;" onclick="clearLevelEditor()">Clear</button>
-                    </div>
-                    <div id="customLevelsList" style="margin-top: 10px;"></div>
-                </div>
-                <div class="dev-section">
-                    <h3>💳 Custom Withdraw Methods</h3>
-                    <p style="color: #9ca3af; margin-bottom: 15px; font-size: 13px;">Add custom payment methods for withdrawals</p>
-                    <div class="dev-row">
-                        <input type="text" class="dev-input" id="withdrawMethodName" placeholder="Method name (e.g., GCash)">
-                        <input type="text" class="dev-input" id="withdrawMethodIcon" placeholder="Icon emoji" style="max-width: 80px;">
-                        <button class="dev-btn save" onclick="createWithdrawMethod()">Add</button>
-                    </div>
-                    <div id="withdrawMethodsList" style="margin-top: 10px;"></div>
-                </div>
-                <div class="dev-section">
-                    <h3>💰 Give All Players</h3>
-                    <div class="dev-row">
-                        <input type="number" class="dev-input" id="giveCredits" placeholder="Credits" style="max-width: 100px;">
-                        <input type="number" class="dev-input" id="givePlays" placeholder="Plays" style="max-width: 100px;">
-                        <input type="number" class="dev-input" id="giveCash" placeholder="Cash" step="0.01" style="max-width: 100px;">
-                        <button class="dev-btn save" onclick="giveAllPlayers()">Give to All</button>
+
+                <!-- Accounts Section -->
+                <div id="adminSectionAccounts" class="admin-section">
+                    <div class="dev-section">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h3>👥 Account Management</h3>
+                            <button class="dev-btn save" onclick="loadAllAccounts()">🔄 Refresh</button>
+                        </div>
+                        <div id="accountsList" style="max-height: 500px; overflow-y: auto;"></div>
                     </div>
                 </div>
-                <div class="dev-section">
-                    <h3>📋 Task Management</h3>
-                    <p style="color: #9ca3af; margin-bottom: 15px; font-size: 13px;">Create custom tasks with HTML content for ads</p>
-                    <div class="dev-row">
-                        <input type="text" class="dev-input" id="taskName" placeholder="Task Name">
-                        <select class="dev-input" id="taskType" style="max-width: 120px;"><option value="visit">Visit Site</option><option value="ad">Watch Ad</option><option value="html">HTML Content</option></select>
+
+                <!-- Promo Codes Section -->
+                <div id="adminSectionPromocodes" class="admin-section" style="display: none;">
+                    <div class="dev-section">
+                        <h3>🎟️ Create Promo Code</h3>
+                        <div class="dev-row">
+                            <input type="text" class="dev-input" id="promoCodeName" placeholder="Code name (e.g., FREEMONEY)">
+                            <input type="number" class="dev-input" id="promoCodeMaxUses" placeholder="Max uses per user (0=∞)" style="max-width: 180px;" min="0">
+                        </div>
+                        <div class="dev-row">
+                            <input type="number" class="dev-input" id="promoCodeCredits" placeholder="Credits" style="max-width: 120px;">
+                            <input type="number" class="dev-input" id="promoCodePlays" placeholder="Plays" style="max-width: 120px;">
+                            <input type="number" class="dev-input" id="promoCodeCash" placeholder="Cash" step="0.01" style="max-width: 120px;">
+                        </div>
+                        <div class="dev-row">
+                            <select class="dev-input" id="promoCodeEventType" style="max-width: 150px;">
+                                <option value="none">No Event</option>
+                                <option value="emoji">Emoji Rain</option>
+                                <option value="text">Custom Text</option>
+                            </select>
+                            <input type="text" class="dev-input" id="promoCodeEmoji" placeholder="Emoji(s) for rain" style="max-width: 150px;">
+                            <input type="text" class="dev-input" id="promoCodeMessage" placeholder="Custom message">
+                        </div>
+                        <button class="dev-btn save" onclick="createPromoCode()" style="margin-top: 10px;">✅ Create Promo Code</button>
                     </div>
-                    <div class="dev-row">
-                        <input type="text" class="dev-input" id="taskUrl" placeholder="URL (for visit type)">
-                        <input type="number" class="dev-input" id="taskCooldown" placeholder="Hours" style="max-width: 80px;" value="24">
+                    <div class="dev-section">
+                        <h3>📋 All Promo Codes</h3>
+                        <p style="color: #9ca3af; margin-bottom: 15px; font-size: 13px;">Click on a code to edit it</p>
+                        <div id="promoCodesList" style="max-height: 400px; overflow-y: auto;"></div>
                     </div>
-                    <div class="dev-row">
-                        <input type="number" class="dev-input" id="taskCredits" placeholder="Credits" style="max-width: 80px;">
-                        <input type="number" class="dev-input" id="taskPlays" placeholder="Plays" style="max-width: 80px;">
-                        <input type="number" class="dev-input" id="taskCash" placeholder="Cash" step="0.01" style="max-width: 80px;">
-                    </div>
-                    <div class="dev-row">
-                        <textarea class="dev-input" id="taskHtmlContent" placeholder="HTML content (for HTML type - encode ads here)" style="width: 100%; height: 60px; resize: vertical;"></textarea>
-                    </div>
-                    <button class="dev-btn save" onclick="createTask()">Create Task</button>
-                    <div id="tasksList" style="margin-top: 15px;"></div>
                 </div>
-                <div class="dev-section">
-                    <h3>💸 Withdrawal Management</h3>
-                    <div id="withdrawalsList"></div>
+
+                <!-- Tasks Section -->
+                <div id="adminSectionTasks" class="admin-section" style="display: none;">
+                    <div class="dev-section">
+                        <h3>📋 Create Task</h3>
+                        <div class="dev-row">
+                            <input type="text" class="dev-input" id="taskName" placeholder="Task Name">
+                            <select class="dev-input" id="taskType" style="max-width: 150px;">
+                                <option value="visit">Visit Site</option>
+                                <option value="ad">Watch Ad</option>
+                                <option value="html">HTML Content</option>
+                            </select>
+                            <input type="number" class="dev-input" id="taskCooldown" placeholder="Cooldown (hours)" style="max-width: 120px;" value="24">
+                        </div>
+                        <div class="dev-row">
+                            <input type="text" class="dev-input" id="taskUrl" placeholder="URL (for visit type)">
+                        </div>
+                        <div class="dev-row">
+                            <input type="number" class="dev-input" id="taskCredits" placeholder="Credits" style="max-width: 100px;">
+                            <input type="number" class="dev-input" id="taskPlays" placeholder="Plays" style="max-width: 100px;">
+                            <input type="number" class="dev-input" id="taskCash" placeholder="Cash" step="0.01" style="max-width: 100px;">
+                        </div>
+                        <div class="dev-row">
+                            <textarea class="dev-input" id="taskHtmlContent" placeholder="HTML content (for HTML type)" style="width: 100%; height: 60px; resize: vertical;"></textarea>
+                        </div>
+                        <button class="dev-btn save" onclick="createTask()">Create Task</button>
+                    </div>
+                    <div class="dev-section">
+                        <h3>📋 All Tasks</h3>
+                        <div id="tasksList" style="max-height: 300px; overflow-y: auto;"></div>
+                    </div>
                 </div>
-                <div class="dev-section">
-                    <h3>⚙️ Settings</h3>
-                    <div class="dev-row">
-                        <label style="color: #9ca3af;">Min Withdraw:</label>
-                        <input type="number" class="dev-input" id="minWithdrawInput" placeholder="1.00" step="0.01" style="max-width: 100px;">
-                        <button class="dev-btn save" onclick="setMinWithdraw()">Set</button>
+
+                <!-- Withdrawals Section -->
+                <div id="adminSectionWithdrawals" class="admin-section" style="display: none;">
+                    <div class="dev-section">
+                        <h3>💸 Withdrawal Requests</h3>
+                        <div id="withdrawalsList"></div>
+                    </div>
+                </div>
+
+                <!-- Levels Section -->
+                <div id="adminSectionLevels" class="admin-section" style="display: none;">
+                    <div class="dev-section">
+                        <h3>📦 Level Editor</h3>
+                        <p style="color: #9ca3af; margin-bottom: 15px; font-size: 13px;">Click=spike, Right-click=coin, Double-click=portal</p>
+                        <div class="dev-row">
+                            <select class="dev-input" id="levelSelect" onchange="loadLevelForEdit()" style="max-width: 200px;">
+                                <option value="">-- New Level --</option>
+                                <option value="easy">Easy - Stereo Madness</option>
+                                <option value="medium">Medium - Back On Track</option>
+                                <option value="hard">Hard - Polargeist</option>
+                                <option value="impossible">Impossible - Deadlocked</option>
+                            </select>
+                            <input type="text" class="dev-input" id="levelName" placeholder="Level Name">
+                            <input type="number" class="dev-input" id="levelDistance" placeholder="Distance" style="max-width: 100px;">
+                        </div>
+                        <div id="levelEditorCanvas" style="background: rgba(0,0,0,0.3); border-radius: 10px; height: 200px; margin-bottom: 10px; position: relative; overflow: hidden; cursor: crosshair;">
+                            <div style="position: absolute; bottom: 0; left: 0; right: 0; height: 50px; background: #0e7490;"></div>
+                            <div style="position: absolute; top: 10px; left: 10px; color: #9ca3af; font-size: 11px;">Click=Spike | Right-Click=Coin | Double-Click=Portal</div>
+                        </div>
+                        <div class="dev-row">
+                            <button class="dev-btn save" onclick="saveCustomLevel()">Save Level</button>
+                            <button class="dev-btn delete" onclick="deleteCurrentLevel()">Delete Level</button>
+                            <button class="dev-btn" style="background: rgba(255,255,255,0.1); color: white;" onclick="clearLevelEditor()">Clear</button>
+                        </div>
+                        <div id="customLevelsList" style="margin-top: 15px;"></div>
+                    </div>
+                </div>
+
+                <!-- Settings Section -->
+                <div id="adminSectionSettings" class="admin-section" style="display: none;">
+                    <div class="dev-section">
+                        <h3>💰 Give All Players</h3>
+                        <div class="dev-row">
+                            <input type="number" class="dev-input" id="giveCredits" placeholder="Credits" style="max-width: 120px;">
+                            <input type="number" class="dev-input" id="givePlays" placeholder="Plays" style="max-width: 120px;">
+                            <input type="number" class="dev-input" id="giveCash" placeholder="Cash" step="0.01" style="max-width: 120px;">
+                            <button class="dev-btn save" onclick="giveAllPlayers()">Give to All</button>
+                        </div>
+                    </div>
+                    <div class="dev-section">
+                        <h3>📣 Broadcast Message</h3>
+                        <div class="dev-row">
+                            <input type="text" class="dev-input" id="broadcastMessage" placeholder="Enter message...">
+                            <select class="dev-input" id="broadcastType" style="max-width: 120px;">
+                                <option value="info">Info</option>
+                                <option value="warning">Warning</option>
+                                <option value="reward">Reward</option>
+                            </select>
+                            <button class="dev-btn save" onclick="sendBroadcast()">Send</button>
+                        </div>
+                    </div>
+                    <div class="dev-section">
+                        <h3>💳 Custom Withdraw Methods</h3>
+                        <div class="dev-row">
+                            <input type="text" class="dev-input" id="withdrawMethodName" placeholder="Method name">
+                            <input type="text" class="dev-input" id="withdrawMethodIcon" placeholder="Icon" style="max-width: 80px;">
+                            <button class="dev-btn save" onclick="createWithdrawMethod()">Add</button>
+                        </div>
+                        <div id="withdrawMethodsList" style="margin-top: 10px;"></div>
+                    </div>
+                    <div class="dev-section">
+                        <h3>⚙️ General Settings</h3>
+                        <div class="dev-row">
+                            <label style="color: #9ca3af;">Min Withdraw: $</label>
+                            <input type="number" class="dev-input" id="minWithdrawInput" placeholder="1.00" step="0.01" style="max-width: 100px;">
+                            <button class="dev-btn save" onclick="setMinWithdraw()">Set</button>
+                        </div>
+                    </div>
+                    <div class="dev-section">
+                        <h3>📢 Error Reports</h3>
+                        <div id="errorReportsList" style="max-height: 200px; overflow-y: auto;"></div>
                     </div>
                 </div>
             </div>
@@ -1625,9 +1697,116 @@
             showNotification('Code deleted and uses reset!');
         }
         function updatePromoCodesList() {
-            const list = document.getElementById('promoCodesList'); const codes = globalSettings.customPromoCodes || {};
-            list.innerHTML = Object.entries(codes).map(([code, r]) => '<div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; margin: 5px 0; display: flex; justify-content: space-between; align-items: center;"><div><strong>' + code + '</strong><div style="font-size: 12px; color: #9ca3af;">+' + (r.credits || 0) + ' Credits, +' + (r.plays || 0) + ' Plays, +$' + (r.cash || 0) + ' | Max uses: ' + (r.maxUses > 0 ? r.maxUses : '∞') + (r.eventType !== 'none' ? ' | ' + r.eventType : '') + '</div></div><button class="dev-btn delete" onclick="deletePromoCode(\'' + code + '\')">Delete</button></div>').join('');
+            const list = document.getElementById('promoCodesList'); 
+            const codes = globalSettings.customPromoCodes || {};
+            
+            if (Object.keys(codes).length === 0) {
+                list.innerHTML = '<p style="color: #9ca3af; text-align: center; padding: 20px;">No promo codes yet. Create one above!</p>';
+                return;
+            }
+            
+            list.innerHTML = Object.entries(codes).map(([code, r]) => {
+                const maxUses = r.max_uses || r.maxUses || 0;
+                const eventType = r.event_type || r.eventType || 'none';
+                return `
+                <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; margin: 8px 0; border: 1px solid rgba(168, 85, 247, 0.2);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <div style="font-size: 18px; font-weight: bold; color: #a855f7;">🎟️ ${code}</div>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="dev-btn" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; font-size: 12px;" onclick="editPromoCode('${code}')">✏️ Edit</button>
+                            <button class="dev-btn delete" style="font-size: 12px;" onclick="deletePromoCode('${code}')">🗑️ Delete</button>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; font-size: 13px;">
+                        <div style="background: rgba(234, 179, 8, 0.1); padding: 8px; border-radius: 6px; text-align: center;">
+                            <div style="color: #fbbf24; font-weight: bold;">💰 ${r.credits || 0}</div>
+                            <div style="color: #9ca3af; font-size: 11px;">Credits</div>
+                        </div>
+                        <div style="background: rgba(34, 197, 94, 0.1); padding: 8px; border-radius: 6px; text-align: center;">
+                            <div style="color: #22c55e; font-weight: bold;">🎯 ${r.plays || 0}</div>
+                            <div style="color: #9ca3af; font-size: 11px;">Plays</div>
+                        </div>
+                        <div style="background: rgba(168, 85, 247, 0.1); padding: 8px; border-radius: 6px; text-align: center;">
+                            <div style="color: #a855f7; font-weight: bold;">💵 $${r.cash || 0}</div>
+                            <div style="color: #9ca3af; font-size: 11px;">Cash</div>
+                        </div>
+                        <div style="background: rgba(59, 130, 246, 0.1); padding: 8px; border-radius: 6px; text-align: center;">
+                            <div style="color: #3b82f6; font-weight: bold;">🔢 ${maxUses > 0 ? maxUses : '∞'}</div>
+                            <div style="color: #9ca3af; font-size: 11px;">Max Uses</div>
+                        </div>
+                    </div>
+                    ${eventType !== 'none' ? `<div style="margin-top: 8px; color: #9ca3af; font-size: 12px;">Event: ${eventType} ${r.emoji || r.message || ''}</div>` : ''}
+                </div>
+            `}).join('');
         }
+        
+        async function editPromoCode(code) {
+            const promo = globalSettings.customPromoCodes[code];
+            if (!promo) {
+                showNotification('Promo code not found!');
+                return;
+            }
+            
+            const newCredits = prompt('Enter new credits:', promo.credits || 0);
+            if (newCredits === null) return;
+            
+            const newPlays = prompt('Enter new plays:', promo.plays || 0);
+            if (newPlays === null) return;
+            
+            const newCash = prompt('Enter new cash:', promo.cash || 0);
+            if (newCash === null) return;
+            
+            const newMaxUses = prompt('Enter new max uses per user (0=∞):', promo.max_uses || promo.maxUses || 0);
+            if (newMaxUses === null) return;
+            
+            // Update the promo code
+            await saveGlobalSettings('updatePromoCode', {
+                code,
+                credits: parseInt(newCredits) || 0,
+                plays: parseInt(newPlays) || 0,
+                cash: parseFloat(newCash) || 0,
+                maxUses: parseInt(newMaxUses) || 0
+            });
+            
+            showNotification('Promo code updated!');
+            updatePromoCodesList();
+        }
+        
+        // Admin tab switching
+        function switchAdminTab(tab) {
+            // Hide all sections
+            document.querySelectorAll('.admin-section').forEach(s => s.style.display = 'none');
+            // Reset all tab buttons
+            document.querySelectorAll('.dev-tab').forEach(t => {
+                t.style.background = 'rgba(255, 255, 255, 0.05)';
+                t.style.color = '#9ca3af';
+            });
+            
+            // Show selected section
+            const sectionMap = {
+                'accounts': 'adminSectionAccounts',
+                'promocodes': 'adminSectionPromocodes',
+                'tasks': 'adminSectionTasks',
+                'withdrawals': 'adminSectionWithdrawals',
+                'levels': 'adminSectionLevels',
+                'settings': 'adminSectionSettings'
+            };
+            
+            const tabMap = {
+                'accounts': 'adminTabAccounts',
+                'promocodes': 'adminTabPromo',
+                'tasks': 'adminTabTasks',
+                'withdrawals': 'adminTabWithdrawals',
+                'levels': 'adminTabLevels',
+                'settings': 'adminTabSettings'
+            };
+            
+            document.getElementById(sectionMap[tab]).style.display = 'block';
+            const activeTab = document.getElementById(tabMap[tab]);
+            activeTab.style.background = 'rgba(236, 72, 153, 0.2)';
+            activeTab.style.color = '#ec4899';
+        }
+        
         async function giveAllPlayers() {
             const credits = parseInt(document.getElementById('giveCredits').value) || 0; const plays = parseInt(document.getElementById('givePlays').value) || 0; const cash = parseFloat(document.getElementById('giveCash').value) || 0;
             if (!credits && !plays && !cash) { showNotification('Please enter values!'); return; }
@@ -1685,6 +1864,24 @@
                 
                 if (result.accounts) {
                     renderAccountsList(result.accounts);
+                    
+                    // Update admin stats
+                    let totalCredits = 0, totalPlays = 0, totalCash = 0;
+                    result.accounts.forEach((acc: any) => {
+                        totalCredits += acc.stats?.credits || 0;
+                        totalPlays += acc.stats?.plays || 0;
+                        totalCash += acc.stats?.cashBalance || 0;
+                    });
+                    
+                    const creditsEl = document.getElementById('adminTotalCredits');
+                    const playsEl = document.getElementById('adminTotalPlays');
+                    const cashEl = document.getElementById('adminTotalCash');
+                    const usersEl = document.getElementById('adminTotalUsers');
+                    
+                    if (creditsEl) creditsEl.textContent = totalCredits.toLocaleString();
+                    if (playsEl) playsEl.textContent = totalPlays.toLocaleString();
+                    if (cashEl) cashEl.textContent = '$' + totalCash.toFixed(2);
+                    if (usersEl) usersEl.textContent = result.accounts.length;
                 }
             } catch (e) {
                 console.error('Error loading accounts:', e);
